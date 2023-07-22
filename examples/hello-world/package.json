@@ -1,0 +1,13 @@
+{
+  "name": "booyah-examples-hello-world",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": "true",
+  "dependencies": {
+    "booyah": "^3.0.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.8.3"
+  }
+}

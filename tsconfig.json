@@ -1,0 +1,19 @@
+{
+  "include": ["src/*.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "inlineSourceMap": true,
+    "lib": ["es2020", "dom"],
+    "listEmittedFiles": true,
+    "module": "es2020",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "pretty": true,
+    "target": "es2019"
+  }
+}
