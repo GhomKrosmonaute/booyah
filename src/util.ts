@@ -367,7 +367,7 @@ export function areAlmostEqualNumber(x: number, y: number): boolean {
   return Math.abs(x - y) <= EPSILON;
 }
 
-let id = 0
+let id = 0;
 export function uniqueId(prefix: string): string {
-  return prefix + id++
+  return prefix + id++;
 }
