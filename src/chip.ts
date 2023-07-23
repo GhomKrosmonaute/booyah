@@ -104,6 +104,15 @@ export function makeSignal(name = "default", params = {}): Signal {
   return { name, params };
 }
 
+export function isSignal(e: unknown): e is Signal {
+  return (
+    _.isObject(e) &&
+    e !== null &&
+    typeof (e as Signal).name === "string" &&
+    typeof (e as Signal).params === "object"
+  );
+}
+
 /**
  * A ChipContext is a immutable map of strings to data.
  * It is provided to chips by their parents.
@@ -1413,10 +1422,7 @@ export class Functional extends Composite {
   Optionally takes a @that parameter, which is set as _this_ during the call. 
 */
 export class Lambda<That> extends ChipBase {
-  constructor(
-    public f: (that?: That) => Signal | string | undefined,
-    public that?: That
-  ) {
+  constructor(public f: (that?: That) => unknown, public that?: That) {
     super();
   }
 
@@ -1424,7 +1430,7 @@ export class Lambda<That> extends ChipBase {
     const result = this.that ? this.f.bind(this.that)(this.that) : this.f();
 
     if (typeof result === "string") this.terminate(makeSignal(result));
-    else if (_.isObject(result)) this.terminate(result);
+    else if (isSignal(result)) this.terminate(result);
     else this.terminate(makeSignal());
   }
 }

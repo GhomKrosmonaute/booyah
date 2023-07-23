@@ -2,7 +2,6 @@
  * @jest-environment jsdom
  */
 
-import * as _ from "underscore";
 import { jest, describe, expect, test, beforeEach } from "@jest/globals";
 
 import * as chip from "../src/chip";

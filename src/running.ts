@@ -1,16 +1,16 @@
-import * as _ from "underscore";
+import * as _ from "radash";
 
 import * as chip from "./chip";
 
-interface HMR {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dispose: (data: any) => void;
+interface HMR<Data extends { reloadMemento?: chip.ReloadMemento }> {
+  dispose: (cb: (data: Data) => void) => void;
   accept: (cb: (dependencies: string[]) => void) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+  data: Data;
 }
 
-export class RunnerOptions {
+export class RunnerOptions<
+  HMRData extends { reloadMemento?: chip.ReloadMemento }
+> {
   rootContext: chip.ChipContext = {};
   inputSignal: chip.Signal = chip.makeSignal();
 
@@ -18,18 +18,18 @@ export class RunnerOptions {
   minFps = 10;
 
   /** Enable hot reloading by passing it `module.hot` */
-  hmr?: HMR;
+  hmr?: HMR<HMRData>;
 }
 
 /**
  * Manages running the game code at a regular refresh rate.
  */
-export class Runner {
-  private _options: RunnerOptions;
+export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
+  private _options: RunnerOptions<HMRData>;
   private _isRunning = false;
-  private _lastTimeStamp: number;
-  private _rootContext: chip.ChipContext;
-  private _rootChip: chip.Chip;
+  private _lastTimeStamp!: number;
+  private _rootContext!: chip.ChipContext;
+  private _rootChip!: chip.Chip;
 
   /**
    *
@@ -38,7 +38,7 @@ export class Runner {
    */
   constructor(
     private readonly _rootChipResolvable: chip.ChipResolvable,
-    options?: Partial<RunnerOptions>
+    options?: Partial<RunnerOptions<HMRData>>
   ) {
     this._options = chip.fillInOptions(options, new RunnerOptions());
 
@@ -53,8 +53,10 @@ export class Runner {
 
     this._rootContext = chip.processChipContext(this._options.rootContext, {});
     this._rootChip = _.isFunction(this._rootChipResolvable)
-      ? this._rootChipResolvable(this._rootContext, chip.makeSignal())
+      ? this._rootChipResolvable(this._rootContext, chip.makeSignal())!
       : this._rootChipResolvable;
+
+    if (!this._rootChip) throw new Error("Root chip is null");
 
     this._rootChip.once("terminated", () => (this._isRunning = false));
 
@@ -110,8 +112,7 @@ export class Runner {
   private _enableHotReloading() {
     console.log("enabling hot reloading");
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._options.hmr.dispose((data: any) => {
+    this._options.hmr?.dispose((data) => {
       // module is about to be replaced.
       // You can save data that should be accessible to the new asset in `data`
       console.log("this._options.hmr.dispose() called");
@@ -119,12 +120,12 @@ export class Runner {
       data.reloadMemento = this._rootChip.makeReloadMemento();
     });
 
-    this._options.hmr.accept((dependencies: string[]) => {
+    this._options.hmr?.accept(() => {
       // module or one of its dependencies was just updated.
       // data stored in `dispose` is available in `this._options.hmr.data`
       console.log("this._options.hmr.accept() called");
 
-      const reloadMemento = this._options.hmr.data.reloadMemento;
+      const reloadMemento = this._options.hmr?.data?.reloadMemento;
       console.log("reloading from", reloadMemento);
 
       const tickInfo: chip.TickInfo = {

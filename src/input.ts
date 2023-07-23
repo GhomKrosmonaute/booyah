@@ -1,4 +1,4 @@
-import _ from "underscore";
+import _ from "radash";
 
 import * as chip from "./chip";
 
@@ -12,7 +12,7 @@ export class Keyboard extends chip.ChipBase {
   // private _onKeyUpWrapper = this._onKeyUp.bind(this);
   // private _onFocusOutWrapper = this._onFocusOut.bind(this);
 
-  private _elapsedTime: number;
+  private _elapsedTime!: number;
 
   constructor(public readonly emitter: EventTarget) {
     super();
@@ -33,11 +33,11 @@ export class Keyboard extends chip.ChipBase {
     const lastKeyDownSet = _.keys(this._lastKeysDown);
 
     this.keysJustDown = {};
-    for (const key of _.difference(keyDownSet, lastKeyDownSet))
+    for (const key of _.diff(keyDownSet, lastKeyDownSet))
       this.keysJustDown[key] = true;
 
     this.keysJustUp = {};
-    for (const key of _.difference(lastKeyDownSet, keyDownSet))
+    for (const key of _.diff(lastKeyDownSet, keyDownSet))
       this.keysJustUp[key] = true;
 
     this._lastKeysDown = _.clone(this.keysDown);
@@ -72,15 +72,15 @@ export function countGamepads(): number {
 export class Gamepad extends chip.ChipBase {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public lastData: any;
-  public buttonsDown: { [key: string]: number };
-  public buttonsJustDown: { [key: string]: boolean };
-  public buttonsJustUp: { [key: string]: boolean };
+  public buttonsDown!: { [key: string]: number };
+  public buttonsJustDown!: { [key: string]: boolean };
+  public buttonsJustUp!: { [key: string]: boolean };
 
-  private _lastButtonsDown: { [key: string]: number };
+  private _lastButtonsDown!: { [key: string]: number };
 
-  public axes: number[];
+  public axes!: number[];
 
-  private _elapsedTime: number;
+  private _elapsedTime!: number;
 
   constructor(public gamepadIndex: number) {
     super();
@@ -136,11 +136,11 @@ export class Gamepad extends chip.ChipBase {
     const lastButtonDownSet = _.keys(this._lastButtonsDown);
 
     this.buttonsJustDown = {};
-    for (const button of _.difference(buttonDownSet, lastButtonDownSet))
+    for (const button of _.diff(buttonDownSet, lastButtonDownSet))
       this.buttonsJustDown[button] = true;
 
     this.buttonsJustUp = {};
-    for (const button of _.difference(lastButtonDownSet, buttonDownSet))
+    for (const button of _.diff(lastButtonDownSet, buttonDownSet))
       this.buttonsJustUp[button] = true;
 
     this._lastButtonsDown = _.clone(this.buttonsDown);

@@ -46,7 +46,7 @@ class MockChip extends chip.ChipBase {
 }
 
 class MockComposite extends chip.Composite {
-  private _defaultChildChipContext: chip.ChipContext;
+  private _defaultChildChipContext!: chip.ChipContext;
 
   get defaultChildChipContext(): chip.ChipContext {
     return this._defaultChildChipContext;
@@ -548,7 +548,7 @@ describe("Sequence", () => {
     expect(children[0]._onTerminate).toBeCalledTimes(5);
 
     // The others not
-    for (const child of _.rest(children)) {
+    for (const child of children.slice(1)) {
       expect(child._onActivate).toBeCalledTimes(0);
       expect(child._onTick).toBeCalledTimes(0);
       expect(child._onPause).toBeCalledTimes(0);
@@ -582,14 +582,14 @@ describe("Sequence", () => {
     parent.tick(makeFrameInfo());
 
     // Each child should be updated 2 times
-    for (const child of _.rest(children)) {
+    for (const child of children.slice(1)) {
       expect(child._onActivate).toBeCalledTimes(1);
       expect(child._onTick).toBeCalledTimes(2);
       expect(child._onTerminate).toBeCalledTimes(1);
     }
 
     // Final signal should be that of the 3rd child
-    expect(parent.outputSignal.name).toBe("third");
+    expect(parent.outputSignal?.name).toBe("third");
   });
 
   test("loops", () => {
@@ -648,7 +648,7 @@ describe("Sequence", () => {
     expect(children[0]._onTerminate).toBeCalledTimes(1);
 
     // There should be a skipped signal
-    expect(parent.outputSignal.name).toBe("skip");
+    expect(parent.outputSignal?.name).toBe("skip");
   });
 
   test("runs single child in loop", () => {
@@ -735,7 +735,7 @@ describe("StateMachine", () => {
     expect(states.start._onTick).toBeCalledTimes(1);
     expect(states.start._onTerminate).toBeCalledTimes(1);
 
-    expect(stateMachine.outputSignal.name).toBe("end");
+    expect(stateMachine.outputSignal?.name).toBe("end");
     expect(stateMachine.visitedStates).toContainEqual(chip.makeSignal("start"));
   });
 
@@ -830,8 +830,8 @@ describe("StateMachine", () => {
 
     expect(states.b._onActivate).toBeCalledTimes(1);
 
-    expect(stateMachine.options.signals.a).toBeCalledTimes(1);
-    expect(stateMachine.options.signals.a).toBeCalledWith(
+    expect(stateMachine.options.signals?.a).toBeCalledTimes(1);
+    expect(stateMachine.options.signals?.a).toBeCalledWith(
       stateMachine.chipContext,
       signal
     );
@@ -853,7 +853,7 @@ describe("Alternative", () => {
 
     // Alternative should terminate as well, with an output signal of the index of the child
     expect(alternative.state).toBe("inactive");
-    expect(alternative.outputSignal.name).toBe("1");
+    expect(alternative.outputSignal?.name).toBe("1");
   });
 
   test("can provide custom signal", () => {
@@ -874,14 +874,14 @@ describe("Alternative", () => {
 
     // Alternative should terminate as well, with an output signal of the index of the child
     expect(alternative.state).toBe("inactive");
-    expect(alternative.outputSignal.name).toBe("hello");
+    expect(alternative.outputSignal?.name).toBe("hello");
   });
 });
 
 //// Test hot reload features
 
 class ReloadingChip extends chip.ChipBase {
-  private _value: number;
+  private _value!: number;
 
   constructor(public readonly defaultValue: number) {
     super();
@@ -889,8 +889,8 @@ class ReloadingChip extends chip.ChipBase {
 
   _onActivate() {
     // Either take the provided value in the memento, or use the default
-    if (this._reloadMemento)
-      this._value = this._reloadMemento.data["value"] as number;
+    if (this._reloadMemento && this._reloadMemento.data)
+      this._value = this._reloadMemento.data["value"]
     else this._value = this.defaultValue;
   }
 
@@ -929,11 +929,11 @@ describe("Hot reloading", () => {
     // Provide a default value
     const e1 = new ReloadingChip(77);
     e1.activate(makeFrameInfo(), makeChipContext(), makeSignal());
-    expect(e1.makeReloadMemento().data.value).toBe(77);
+    expect(e1.makeReloadMemento().data?.value).toBe(77);
 
     // Update the value, it should get in the new memento
     e1.value = 88;
-    expect(e1.makeReloadMemento().data.value).toBe(88);
+    expect(e1.makeReloadMemento().data?.value).toBe(88);
 
     // Create a new chip from the previous chips memento. It should have the newer value
     const e2 = new ReloadingChip(77);
@@ -974,7 +974,7 @@ describe("Hot reloading", () => {
     child1.value = 88;
 
     const memento = parent1.makeReloadMemento();
-    expect(_.size(memento.children)).toBe(1);
+    expect(Object.keys(memento.children).length).toBe(1);
 
     // Reload the chip
     const child2 = new ReloadingChip(77);
@@ -998,7 +998,7 @@ describe("Hot reloading", () => {
     child2V1.value = 99;
 
     const memento = parentV1.makeReloadMemento();
-    expect(_.size(memento.children)).toBe(2);
+    expect(Object.keys(memento.children).length).toBe(2);
 
     // Reload the chip
     const child1V2 = new ReloadingChip(1);
@@ -1022,7 +1022,7 @@ describe("Hot reloading", () => {
 
     let memento = parentV1.makeReloadMemento();
     // Only the activated child will be in the memento
-    expect(_.size(memento.children)).toBe(1);
+    expect(Object.keys(memento.children).length).toBe(1);
 
     // Reload the chip
     const child1V2 = new ReloadingChip(1);

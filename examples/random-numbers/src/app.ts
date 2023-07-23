@@ -1,6 +1,6 @@
 // Import Booyah dependencies
-import * as chip from "booyah/src/chip";
-import * as running from "booyah/src/running";
+import * as chip from "../../../src/chip";
+import * as running from "../../../src/running";
 
 // Generates random numbers and shows them on the web page
 class RandomNumberGenerator extends chip.ChipBase {

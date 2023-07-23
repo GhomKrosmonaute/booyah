@@ -1,6 +1,6 @@
 // Import Booyah dependencies
-import * as chip from "booyah/src/chip";
-import * as running from "booyah/src/running";
+import * as chip from "../../../src/chip";
+import * as running from "../../../src/running";
 
 function printHelloWorld() {
   console.log("Hello world from Booyah");
