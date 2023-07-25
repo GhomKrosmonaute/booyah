@@ -1,6 +1,7 @@
 import { jest, describe, expect, test, beforeEach } from "@jest/globals";
 
 import * as chip from "../src/chip";
+import * as event from "../src/event";
 
 function makeChipContext(): chip.ChipContext {
   return { rootValue: 1 };
@@ -230,12 +231,12 @@ describe("Events", () => {
   });
 
   test("receives custom-style events", () => {
-    const subscriptionHandlerA: chip.SubscriptionHandler = {
+    const subscriptionHandlerA: event.SubscriptionHandler = {
       subscribe: jest.fn(),
       subscribeOnce: jest.fn(),
       unsubscribe: jest.fn(),
     };
-    const subscriptionHandlerB: chip.SubscriptionHandler = {
+    const subscriptionHandlerB: event.SubscriptionHandler = {
       subscribe: jest.fn(),
       subscribeOnce: jest.fn(),
       unsubscribe: jest.fn(),

@@ -1,90 +1,7 @@
-import { EventEmitter } from "@ghom/event-emitter";
-import * as _ from "radash";
-import * as util from "./util";
-
-/**
- * Fills in the missing options from the provided defaults
- * @param options Options provided by the caller
- * @param defaults Defaults provided by the author
- */
-// @es-li
-export function fillInOptions<T>(
-  options: Partial<T> | unknown,
-  defaults: T
-): T {
-  if (options) return { ...defaults, ...(options as object) };
-  else return defaults;
-}
-
-/** Deep clone of JSON-serializable objects */
-export function cloneData<T = unknown>(o: T): T {
-  return JSON.parse(JSON.stringify(o));
-}
-
-/**
- * Event source that uses a Node.js-like interface using `on()` and `off()`.
- */
-export interface NodeEventSource {
-  on(type: string, listener: () => void): void;
-  once(type: string, listener: () => void): void;
-  off(type: string, listener: () => void): void;
-  emit(type: string, ...args: unknown[]): void;
-}
-
-export function isNodeEventSource(emitter: object): emitter is NodeEventSource {
-  return typeof (emitter as NodeEventSource).on === "function";
-}
-
-export function isEventTarget(emitter: object): emitter is EventTarget {
-  return typeof (emitter as EventTarget).addEventListener === "function";
-}
-
-export type UnsubscribeFunction = (
-  emitter: object,
-  event: string,
-  cb: () => void
-) => void;
-
-export interface SubscriptionHandler {
-  subscribe(emitter: object, event: string, cb: () => void): void;
-  subscribeOnce(emitter: object, event: string, cb: () => void): void;
-  unsubscribe(emitter: object, event: string, cb: () => void): void;
-}
-
-class NodeEventSourceSubscriptionHandler implements SubscriptionHandler {
-  subscribe(emitter: NodeEventSource, event: string, cb: () => void): void {
-    emitter.on(event, cb);
-  }
-
-  subscribeOnce(emitter: NodeEventSource, event: string, cb: () => void): void {
-    emitter.once(event, cb);
-  }
-
-  unsubscribe(emitter: NodeEventSource, event: string, cb: () => void): void {
-    emitter.off(event, cb);
-  }
-}
-
-class EventTargetSubscriptionHandler implements SubscriptionHandler {
-  subscribe(emitter: EventTarget, event: string, cb: () => void): void {
-    emitter.addEventListener(event, cb);
-  }
-
-  subscribeOnce(emitter: EventTarget, event: string, cb: () => void): void {
-    emitter.addEventListener(event, cb, { once: true });
-  }
-
-  unsubscribe(emitter: EventTarget, event: string, cb: () => void): void {
-    emitter.removeEventListener(event, cb);
-  }
-}
-
-export interface IEventListener {
-  emitter: object;
-  event: string;
-  cb: () => void;
-  subscriptionHandler: SubscriptionHandler;
-}
+import { EventEmitter, BaseEventNames } from "@ghom/event-emitter"
+import * as _ from "radash"
+import * as util from "./util"
+import * as event from "./event"
 
 /**
  * A `Signal` represents a immutable message that is provided to a chip when it activates,
@@ -95,13 +12,13 @@ export interface IEventListener {
  * Instead, call `makeSignal()` to create one.
  */
 export interface Signal {
-  readonly name: string;
+  readonly name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly params: Record<string, any>;
+  readonly params: Record<string, any>
 }
 
 export function makeSignal(name = "default", params = {}): Signal {
-  return { name, params };
+  return { name, params }
 }
 
 export function isSignal(e: unknown): e is Signal {
@@ -110,7 +27,7 @@ export function isSignal(e: unknown): e is Signal {
     e !== null &&
     typeof (e as Signal).name === "string" &&
     typeof (e as Signal).params === "object"
-  );
+  )
 }
 
 /**
@@ -121,10 +38,10 @@ export function isSignal(e: unknown): e is Signal {
  * by calling `processChipContext90`
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ChipContext = Readonly<Record<string, any>>;
+export type ChipContext = Readonly<Record<string, any>>
 
-export type ChipContextFactory = (context: ChipContext) => ChipContext;
-export type ChipContextResolvable = ChipContext | ChipContextFactory;
+export type ChipContextFactory = (context: ChipContext) => ChipContext
+export type ChipContextResolvable = ChipContext | ChipContextFactory
 
 /**
  * Create a new `ChipContext` from a previous context and a list of alterations.
@@ -135,22 +52,22 @@ export function processChipContext(
   chipContext: ChipContext,
   ...alteredContexts: Array<ChipContextResolvable | undefined>
 ): ChipContext {
-  let context = chipContext;
+  let context = chipContext
   for (const alteredContext of alteredContexts) {
-    if (!alteredContext) continue;
+    if (!alteredContext) continue
 
-    if (typeof alteredContext == "function") context = alteredContext(context);
-    else context = Object.assign({}, context, alteredContext);
+    if (typeof alteredContext == "function") context = alteredContext(context)
+    else context = Object.assign({}, context, alteredContext)
   }
 
-  return context;
+  return context
 }
 
 /**
  * Information provided to a chip on each tick
  */
 export interface TickInfo {
-  timeSinceLastTick: number;
+  timeSinceLastTick: number
 }
 
 /**
@@ -159,15 +76,27 @@ export interface TickInfo {
 export type ChipFactory = (
   context: ChipContext,
   signal: Signal
-) => Chip | undefined;
+) => Chip | undefined
 
-export type ChipResolvable = Chip | ChipFactory;
+export type ChipResolvable = Chip | ChipFactory
 
-export interface ChipActivationInfo extends ActivateChildChipOptions {
-  chip: ChipResolvable;
+export function resolveChip(
+  resolvable: ChipResolvable,
+  context: Record<string, any>
+): Chip {
+  if (isChip(resolvable)) return resolvable
+  else {
+    const chip = resolvable(context, makeSignal())
+    if (!chip) throw new Error("Chip factory returned null")
+    return chip
+  }
 }
 
-export type ChipState = "inactive" | "active" | "paused";
+export interface ChipActivationInfo extends ActivateChildChipOptions {
+  chip: ChipResolvable
+}
+
+export type ChipState = "inactive" | "active" | "paused"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isChip(e: any): e is Chip {
@@ -175,22 +104,22 @@ export function isChip(e: any): e is Chip {
     typeof e.activate === "function" &&
     typeof e.tick === "function" &&
     typeof e.terminate === "function"
-  );
+  )
 }
 
 export function isChipResolvable(
   e: ChipResolvable | ChipActivationInfo
 ): e is ChipResolvable {
-  return typeof e === "function" || isChip(e);
+  return typeof e === "function" || isChip(e)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ReloadMementoData = Record<string, any>;
+export type ReloadMementoData = Record<string, any>
 
 export interface ReloadMemento {
-  className: string;
-  data?: ReloadMementoData;
-  children: Record<string, ReloadMemento>;
+  className: string
+  data?: ReloadMementoData
+  children: Record<string, ReloadMemento>
 }
 
 /**
@@ -202,15 +131,15 @@ export interface ReloadMemento {
  * - activated()
  * - terminated()
  **/
-export interface Chip extends NodeEventSource {
+export interface Chip extends event.NodeEventSource {
   /** Current state of the chip */
-  readonly state: ChipState;
+  readonly state: ChipState
 
   /** Once the chip is terminated, contains the signal */
-  readonly outputSignal?: Signal;
+  readonly outputSignal?: Signal
 
   /** Children of this chip, if any */
-  readonly children: Record<string, Chip>;
+  readonly children: Record<string, Chip>
 
   /** Activate the chip, with a provided context and input signal.
    * Should only be called from an inactive state
@@ -220,21 +149,26 @@ export interface Chip extends NodeEventSource {
     chipContext: ChipContext,
     inputSignal: Signal,
     reloadMemento?: ReloadMemento
-  ): void;
+  ): void
 
   /** Update the chip, provided a new time */
-  tick(tickInfo: TickInfo): void;
+  tick(tickInfo: TickInfo): void
 
   /** Terminate the chip. Should only be called from an active or paused state */
-  terminate(outputSignal?: Signal): void;
+  terminate(outputSignal?: Signal): void
 
   /** Pause the chip, informing it that it won't receive ticks for a while */
-  pause(tickInfo: TickInfo): void;
+  pause(tickInfo: TickInfo): void
 
   /** Resumes the chip after it was paused */
-  resume(tickInfo: TickInfo): void;
+  resume(tickInfo: TickInfo): void
 
-  makeReloadMemento(): ReloadMemento;
+  makeReloadMemento(): ReloadMemento
+}
+
+export interface BaseChipBaseEvents extends BaseEventNames {
+  activated: [inputSignal?: Signal]
+  terminated: [outputSignal: Signal]
 }
 
 /**
@@ -251,17 +185,22 @@ export interface Chip extends NodeEventSource {
  * In addition, you can subscribe to events using `_subscribe()` in a way that automatically
  * unsubscribes when the chip is terminated.
  */
-export abstract class ChipBase extends EventEmitter implements Chip {
-  protected _chipContext!: ChipContext;
-  protected _lastTickInfo!: TickInfo;
-  protected _inputSignal?: Signal;
-  protected _reloadMemento?: ReloadMemento;
-  protected _eventListeners: IEventListener[] = [];
-  protected _outputSignal?: Signal;
-  protected _state: ChipState = "inactive";
+export abstract class ChipBase<
+    ChipBaseEvents extends BaseChipBaseEvents = BaseChipBaseEvents
+  >
+  extends EventEmitter<ChipBaseEvents>
+  implements Chip
+{
+  protected _chipContext!: ChipContext
+  protected _lastTickInfo!: TickInfo
+  protected _inputSignal?: Signal
+  protected _reloadMemento?: ReloadMemento
+  protected _eventListeners: event.IEventListener[] = []
+  protected _outputSignal?: Signal
+  protected _state: ChipState = "inactive"
 
   get chipContext(): ChipContext {
-    return this._chipContext;
+    return this._chipContext
   }
 
   public activate(
@@ -271,62 +210,62 @@ export abstract class ChipBase extends EventEmitter implements Chip {
     reloadMemento?: ReloadMemento
   ): void {
     if (this._state !== "inactive")
-      throw new Error(`activate() called from state ${this._state}`);
+      throw new Error(`activate() called from state ${this._state}`)
 
-    this._chipContext = chipContext;
-    this._lastTickInfo = tickInfo;
-    this._inputSignal = inputSignal;
-    this._state = "active";
-    delete this._outputSignal;
+    this._chipContext = chipContext
+    this._lastTickInfo = tickInfo
+    this._inputSignal = inputSignal
+    this._state = "active"
+    delete this._outputSignal
 
     if (reloadMemento && reloadMemento.className === this.constructor.name)
-      this._reloadMemento = reloadMemento;
-    else delete this._reloadMemento;
+      this._reloadMemento = reloadMemento
+    else delete this._reloadMemento
 
-    this._onActivate();
+    this._onActivate()
 
-    this.emit("activated", inputSignal);
+    this.emit("activated", inputSignal)
   }
 
   public tick(tickInfo: TickInfo): void {
-    if (this._state === "paused") return;
+    if (this._state === "paused") return
     if (this._state !== "active")
-      throw new Error(`tick() called from state ${this._state}`);
+      throw new Error(`tick() called from state ${this._state}`)
 
-    this._lastTickInfo = tickInfo;
-    this._onTick();
+    this._lastTickInfo = tickInfo
+    this._onTick()
   }
 
   public terminate(outputSignal: Signal = makeSignal()): void {
     if (this._state !== "active" && this._state !== "paused")
-      throw new Error(`terminate() called from state ${this._state}`);
+      throw new Error(`terminate() called from state ${this._state}`)
 
-    this._outputSignal = outputSignal;
-    this._onTerminate();
+    this._outputSignal = outputSignal
+    this._onTerminate()
 
-    this._unsubscribe(); // Remove all event listeners
+    this._unsubscribe() // Remove all event listeners
 
-    this._state = "inactive";
+    this._state = "inactive"
 
-    this.emit("terminated", this._outputSignal);
+    this.emit("terminated", this._outputSignal)
   }
 
   public pause(tickInfo: TickInfo): void {
     if (this._state !== "active")
-      throw new Error(`pause() called from state ${this._state}`);
+      throw new Error(`pause() called from state ${this._state}`)
 
-    this._state = "paused";
+    this._state = "paused"
 
-    this._onPause();
+    this._onPause()
   }
 
   public resume(tickInfo: TickInfo): void {
     if (this._state !== "paused")
-      throw new Error(`resume() called from state ${this._state}`);
+      throw new Error(`resume() called from state ${this._state}`)
 
-    this._state = "active";
+    this._state = "active"
 
-    this._onResume();
+    this._onResume()
   }
 
   /**
@@ -336,30 +275,41 @@ export abstract class ChipBase extends EventEmitter implements Chip {
    * If you are interfacing with a different event system, you can provide a
    * `subscriptionHandler` that knows how to handle it.
    */
-  protected _subscribe(
-    emitter: object,
-    event: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cb: (...args: any[]) => void,
-    subscriptionHandler?: SubscriptionHandler
+  protected _subscribe<
+    Emitter extends object,
+    EventNames extends Emitter extends ChipBase<infer _EventNames>
+      ? _EventNames
+      : BaseEventNames,
+    EventName extends keyof EventNames & string
+  >(
+    emitter: Emitter,
+    eventName: EventName,
+    cb: (this: this, ...args: EventNames[EventName]) => void,
+    subscriptionHandler?: event.SubscriptionHandler
   ): void {
     if (!subscriptionHandler) {
-      if (isNodeEventSource(emitter)) {
-        subscriptionHandler = new NodeEventSourceSubscriptionHandler();
-      } else if (isEventTarget(emitter)) {
-        subscriptionHandler = new EventTargetSubscriptionHandler();
+      if (event.isNodeEventSource(emitter)) {
+        subscriptionHandler = new event.NodeEventSourceSubscriptionHandler()
+      } else if (event.isEventTarget(emitter)) {
+        subscriptionHandler = new event.EventTargetSubscriptionHandler()
       } else {
         throw new Error(
           `Emitter is of unknown type "${typeof emitter}", requires custom SubscriptionHandler`
-        );
+        )
       }
     }
 
     // Make sure the callback uses the correct `this`
-    cb = cb.bind(this);
+    // @ts-ignore
+    cb = cb.bind(this)
 
-    this._eventListeners.push({ emitter, event, cb, subscriptionHandler });
-    subscriptionHandler.subscribe(emitter, event, cb);
+    this._eventListeners.push({
+      emitter,
+      event: eventName,
+      cb,
+      subscriptionHandler,
+    })
+    subscriptionHandler.subscribe(emitter, eventName, cb)
   }
 
   /**
@@ -369,29 +319,39 @@ export abstract class ChipBase extends EventEmitter implements Chip {
    * If you are interfacing with a different event system, you can provide a
    * `subscriptionHandler` that knows how to handle them.
    */
-  protected _subscribeOnce(
-    emitter: object,
-    event: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cb: (...args: any[]) => void,
-    subscriptionHandler?: SubscriptionHandler
+  protected _subscribeOnce<
+    Emitter extends object,
+    EventNames extends Emitter extends ChipBase<infer _EventNames>
+      ? _EventNames
+      : BaseEventNames,
+    EventName extends keyof EventNames & string
+  >(
+    emitter: Emitter,
+    eventName: EventName,
+    cb: (this: this, ...args: EventNames[EventName]) => void,
+    subscriptionHandler?: event.SubscriptionHandler
   ): void {
     if (!subscriptionHandler) {
-      if (isNodeEventSource(emitter)) {
-        subscriptionHandler = new NodeEventSourceSubscriptionHandler();
-      } else if (isEventTarget(emitter)) {
-        subscriptionHandler = new EventTargetSubscriptionHandler();
+      if (event.isNodeEventSource(emitter)) {
+        subscriptionHandler = new event.NodeEventSourceSubscriptionHandler()
+      } else if (event.isEventTarget(emitter)) {
+        subscriptionHandler = new event.EventTargetSubscriptionHandler()
       } else {
         throw new Error(
           `Emitter is of unknown type "${typeof emitter}", requires custom SubscriptionHandler`
-        );
+        )
       }
     }
 
-    cb = cb.bind(this);
+    cb = cb.bind(this)
 
-    this._eventListeners.push({ emitter, event, cb, subscriptionHandler });
-    subscriptionHandler.subscribeOnce(emitter, event, cb);
+    this._eventListeners.push({
+      emitter,
+      event: eventName,
+      cb,
+      subscriptionHandler,
+    })
+    subscriptionHandler.subscribeOnce(emitter, eventName, cb)
   }
 
   /** Unsubscribe to a set of events.
@@ -399,56 +359,58 @@ export abstract class ChipBase extends EventEmitter implements Chip {
    * unsubscribe only to those.
    */
   protected _unsubscribe(
-    emitter?: NodeEventSource,
+    emitter?: event.NodeEventSource,
     event?: string,
     cb?: (...args: unknown[]) => void
   ): void {
     const [listenersToRemove, listenersToKeep] = _.fork(
       this._eventListeners,
       (listener) => {
-        return !(
-          (!emitter || emitter === listener.emitter) &&
-          (!event || event === listener.event) &&
-          (!cb || cb === listener.cb)
-        );
+        // true if the listener should be kept
+        // false if the listener should be removed
+        return (
+          (!emitter || emitter !== listener.emitter) &&
+          (!event || event !== listener.event) &&
+          (!cb || cb !== listener.cb)
+        )
       }
-    );
+    )
     for (const listener of listenersToRemove)
       listener.subscriptionHandler.unsubscribe(
         listener.emitter,
         listener.event,
         listener.cb
-      );
+      )
 
-    this._eventListeners = listenersToKeep;
+    this._eventListeners = listenersToKeep
   }
 
   public get children(): Record<string, Chip> {
-    return {};
+    return {}
   }
 
   public get outputSignal(): Signal | undefined {
-    return this._outputSignal;
+    return this._outputSignal
   }
 
   public get state(): ChipState {
-    return this._state;
+    return this._state
   }
 
   public makeReloadMemento(): ReloadMemento {
     if (this._state !== "active" && this._state !== "paused")
-      throw new Error(`makeReloadMemento() called from state ${this._state}`);
+      throw new Error(`makeReloadMemento() called from state ${this._state}`)
 
-    const childMementos: Record<string, ReloadMemento> = {};
+    const childMementos: Record<string, ReloadMemento> = {}
     for (const childId in this.children) {
-      childMementos[childId] = this.children[childId].makeReloadMemento();
+      childMementos[childId] = this.children[childId].makeReloadMemento()
     }
 
     return {
       className: this.constructor.name,
       data: this._makeReloadMementoData(),
       children: childMementos,
-    };
+    }
   }
 
   /**
@@ -488,47 +450,56 @@ export abstract class ChipBase extends EventEmitter implements Chip {
 
   /** By default, a chip be automatically reloaded */
   protected _makeReloadMementoData(): ReloadMementoData | undefined {
-    return undefined;
+    return undefined
   }
 }
 
 /** Empty chip that does nothing and never terminates  */
-export class Forever extends ChipBase {}
+export class Forever<
+  ForeverEvents extends BaseChipBaseEvents = BaseChipBaseEvents
+> extends ChipBase<ForeverEvents> {}
 
 /** An chip that terminates with a given output signal immediately  */
-export class Transitory extends ChipBase {
+export class Transitory<
+  TransitoryEvents extends BaseChipBaseEvents = BaseChipBaseEvents
+> extends ChipBase<TransitoryEvents> {
   constructor(public readonly terminateSignal = makeSignal()) {
-    super();
+    super()
   }
 
   _onActivate() {
-    this.terminate(this.terminateSignal);
+    this.terminate(this.terminateSignal)
   }
+}
+
+export interface BaseCompositeEvents extends BaseChipBaseEvents {
+  activatedChildChip: [chip: Chip, context: ChipContext, signal: Signal]
+  terminatedChildChip: [chip: Chip]
 }
 
 /** Options that can be passed to Composite._activateChildChip() */
 export class ActivateChildChipOptions {
   /** Additional context or function to return a context */
-  context?: ChipContextResolvable;
+  context?: ChipContextResolvable
 
   /** An input signal given to the chip */
-  inputSignal?: Signal;
+  inputSignal?: Signal
 
   /**
    * If provided, will store the chip using this attribute name.
    * If the name ends with `[]` or if the attribute is an array,
    * adds the chip to the array attribute of that name.
    */
-  attribute?: string;
+  attribute?: string
 
   /**
    * If true, adds the child chip to the context provided to children, using the
    * provided `attribute` or `id`.
    */
-  includeInChildContext?: boolean;
+  includeInChildContext?: boolean
 
-  id?: string;
-  reloadMemento?: ReloadMemento;
+  id?: string
+  reloadMemento?: ReloadMemento
 }
 
 /**
@@ -538,12 +509,14 @@ export class ActivateChildChipOptions {
  * - activatedChildChip(chip: Chip, context: ChipContext, signal: Signal)
  * - terminatedChildChip(chip: Chip)
  */
-export abstract class Composite extends ChipBase {
-  protected _childChips!: Record<string, Chip>;
-  private _childChipContext!: Record<string, unknown>;
-  private _deferredOutputSignal!: Signal;
+export abstract class Composite<
+  CompositeEvents extends BaseCompositeEvents = BaseCompositeEvents
+> extends ChipBase<CompositeEvents> {
+  protected _childChips!: Record<string, Chip>
+  private _childChipContext!: Record<string, unknown>
+  private _deferredOutputSignal!: Signal
   // Are the activate() or tick() methods currently being run?
-  private _methodCallInProgress!: boolean;
+  private _methodCallInProgress!: boolean
 
   public activate(
     tickInfo: TickInfo,
@@ -551,12 +524,12 @@ export abstract class Composite extends ChipBase {
     inputSignal?: Signal,
     reloadMemento?: ReloadMemento
   ): void {
-    this._childChips = {};
-    this._childChipContext = {};
+    this._childChips = {}
+    this._childChipContext = {}
 
-    this._methodCallInProgress = true;
-    super.activate(tickInfo, chipContext, inputSignal, reloadMemento);
-    this._methodCallInProgress = false;
+    this._methodCallInProgress = true
+    super.activate(tickInfo, chipContext, inputSignal, reloadMemento)
+    this._methodCallInProgress = false
   }
 
   /**
@@ -564,67 +537,67 @@ export abstract class Composite extends ChipBase {
    * Overload this method in subclasses to change the behavior
    */
   public tick(tickInfo: TickInfo): void {
-    if (this._state === "paused") return;
+    if (this._state === "paused") return
     if (this._state !== "active")
-      throw new Error(`tick() called from state ${this._state}`);
+      throw new Error(`tick() called from state ${this._state}`)
 
     if (this._deferredOutputSignal) {
-      this.terminate(this._deferredOutputSignal);
-      return;
+      this.terminate(this._deferredOutputSignal)
+      return
     }
 
-    this._lastTickInfo = tickInfo;
+    this._lastTickInfo = tickInfo
 
-    this._onTick();
-    this._methodCallInProgress = true;
-    this._tickChildChips();
-    this._methodCallInProgress = false;
-    this._onAfterTick();
+    this._onTick()
+    this._methodCallInProgress = true
+    this._tickChildChips()
+    this._methodCallInProgress = false
+    this._onAfterTick()
   }
 
   public terminate(outputSignal: Signal = makeSignal()): void {
     // Can't just call super.terminate() here, the order is slightly different
 
     if (this._state !== "active" && this._state !== "paused")
-      throw new Error(`terminate() called from state ${this._state}`);
+      throw new Error(`terminate() called from state ${this._state}`)
 
     if (this._methodCallInProgress) {
-      this._deferredOutputSignal = outputSignal;
-      return;
+      this._deferredOutputSignal = outputSignal
+      return
     }
 
-    this._state = "inactive";
+    this._state = "inactive"
 
-    this._unsubscribe(); // Remove all event listeners
+    this._unsubscribe() // Remove all event listeners
 
-    this._terminateAllChildChips();
+    this._terminateAllChildChips()
 
-    this._outputSignal = outputSignal;
-    this._onTerminate();
+    this._outputSignal = outputSignal
+    this._onTerminate()
 
-    this.emit("terminated", this._outputSignal);
+    this.emit("terminated", this._outputSignal)
   }
 
   public pause(tickInfo: TickInfo): void {
-    super.pause(tickInfo);
+    super.pause(tickInfo)
 
-    this._removeTerminatedChildChips();
+    this._removeTerminatedChildChips()
     for (const child of Object.values(this._childChips)) {
-      child.pause(tickInfo);
+      child.pause(tickInfo)
     }
   }
 
   public resume(tickInfo: TickInfo): void {
-    super.resume(tickInfo);
+    super.resume(tickInfo)
 
-    this._removeTerminatedChildChips();
+    this._removeTerminatedChildChips()
     for (const child of Object.values(this._childChips)) {
-      child.resume(tickInfo);
+      child.resume(tickInfo)
     }
   }
 
   public get children(): Record<string, Chip> {
-    return this._childChips;
+    return this._childChips
   }
 
   /**
@@ -637,12 +610,12 @@ export abstract class Composite extends ChipBase {
     chipResolvable: ChipResolvable,
     options?: Partial<ActivateChildChipOptions>
   ): Chip {
-    if (this.state === "inactive") throw new Error("Composite is inactive");
+    if (this.state === "inactive") throw new Error("Composite is inactive")
 
-    options = fillInOptions(options, new ActivateChildChipOptions());
+    options = util.fillInOptions(options, new ActivateChildChipOptions())
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const thisAsAny = this as any;
+    const thisAsAny = this as any
 
     // If an existing chip with that attribute exists, terminate it
     // Doesn't remove arrays, though
@@ -658,125 +631,125 @@ export abstract class Composite extends ChipBase {
           } would replace a non-chip. Current attribute value = ${
             thisAsAny[options.attribute]
           }`
-        );
+        )
 
-      this._terminateChildChip(thisAsAny[options.attribute] as Chip);
+      this._terminateChildChip(thisAsAny[options.attribute] as Chip)
     }
 
-    let providedId = options.id ?? options.attribute;
+    let providedId = options.id ?? options.attribute
     if (providedId) {
       if (providedId.endsWith("[]")) {
-        providedId = util.uniqueId(providedId);
+        providedId = util.uniqueId(providedId)
       }
       if (providedId in this._childChips)
-        throw new Error("Duplicate child chip ID provided");
+        throw new Error("Duplicate child chip ID provided")
     }
 
-    const inputSignal = options.inputSignal ?? makeSignal();
+    const inputSignal = options.inputSignal ?? makeSignal()
 
     const childContext = processChipContext(
       this._chipContext,
       this._childChipContext,
       this.defaultChildChipContext,
       options.context
-    );
+    )
 
-    let chip: Chip | undefined;
+    let chip: Chip | undefined
     if (_.isFunction(chipResolvable)) {
-      chip = chipResolvable(childContext, inputSignal);
+      chip = chipResolvable(childContext, inputSignal)
     } else {
-      chip = chipResolvable;
+      chip = chipResolvable
     }
 
     // If no chip is returned, then nothing more to do
-    if (!chip) throw new Error("No chip returned");
+    if (!chip) throw new Error("No chip returned")
 
     // Look for reload memento, if an id is provided
-    let reloadMemento: ReloadMemento | undefined;
+    let reloadMemento: ReloadMemento | undefined
     if (providedId && this._reloadMemento?.children[providedId]) {
-      reloadMemento = this._reloadMemento.children[providedId];
+      reloadMemento = this._reloadMemento.children[providedId]
     }
 
     // If no childId is provided, use a random temporary value
     const childId =
-      providedId ?? `unknown_${Number.MAX_SAFE_INTEGER * Math.random()}`;
-    this._childChips[childId] = chip;
+      providedId ?? `unknown_${Number.MAX_SAFE_INTEGER * Math.random()}`
+    this._childChips[childId] = chip
 
     if (options.attribute) {
-      let attributeName = options.attribute;
+      let attributeName = options.attribute
       // If the attribute name has an array syntax, add to the array
       if (options.attribute.endsWith("[]")) {
         // Take off the last 2 characters
-        attributeName = attributeName.slice(0, attributeName.length - 2);
-        let attributeAsArray = this[attributeName as keyof this] as Array<Chip>;
+        attributeName = attributeName.slice(0, attributeName.length - 2)
+        let attributeAsArray = this[attributeName as keyof this] as Array<Chip>
         if (typeof attributeAsArray !== "undefined") {
           // Add to array
-          attributeAsArray.push(chip);
+          attributeAsArray.push(chip)
         } else {
           // Create a new array
-          attributeAsArray = [chip];
+          attributeAsArray = [chip]
           // @ts-ignore
-          this[attributeName] = attributeAsArray;
+          this[attributeName] = attributeAsArray
         }
 
         // When the chip is terminated, remove the attribute
         this._subscribeOnce(chip, "terminated", (signal: Signal) => {
           // @ts-ignore
-          const attributeAsArray = this[attributeName] as Array<Chip>;
-          const index = attributeAsArray.indexOf(chip!);
-          attributeAsArray.splice(index, 1);
-        });
+          const attributeAsArray = this[attributeName] as Array<Chip>
+          const index = attributeAsArray.indexOf(chip!)
+          attributeAsArray.splice(index, 1)
+        })
       } else {
         // @ts-ignore
-        this[attributeName] = chip;
+        this[attributeName] = chip
 
         // When the chip is terminated, delete the attribute
         this._subscribeOnce(chip, "terminated", (signal: Signal) => {
-          delete this[attributeName as keyof this];
-        });
+          delete this[attributeName as keyof this]
+        })
       }
     }
 
-    chip.activate(this._lastTickInfo, childContext, inputSignal, reloadMemento);
+    chip.activate(this._lastTickInfo, childContext, inputSignal, reloadMemento)
 
     if (options.includeInChildContext) {
       if (!providedId)
         throw new Error(
           "To include a child chip in the context, provide an attribute name or ID"
-        );
+        )
 
-      this._childChipContext[providedId] = chip;
+      this._childChipContext[providedId] = chip
 
       // When the chip is terminated, remove from the context
       this._subscribeOnce(chip, "terminated", (signal: Signal) => {
         // @ts-ignore
-        delete this._childChipContext[providedId];
-      });
+        delete this._childChipContext[providedId]
+      })
     }
 
-    this.emit("activatedChildChip", chip, childContext, inputSignal);
+    this.emit("activatedChildChip", chip, childContext, inputSignal)
 
-    return chip;
+    return chip
   }
 
   protected _terminateChildChip(chip: Chip, outputSignal?: Signal): void {
-    if (this.state === "inactive") throw new Error("Composite is inactive");
+    if (this.state === "inactive") throw new Error("Composite is inactive")
 
     // Try to find value
-    let childId: string | undefined;
+    let childId: string | undefined
     for (const id in this._childChips) {
       if (this._childChips[id] === chip) {
-        childId = id;
-        break;
+        childId = id
+        break
       }
     }
-    if (!childId) throw new Error("Cannot find chip to terminate");
+    if (!childId) throw new Error("Cannot find chip to terminate")
 
-    chip.terminate(outputSignal);
+    chip.terminate(outputSignal)
 
-    delete this._childChips[childId];
+    delete this._childChips[childId]
 
-    this.emit("terminatedChildChip", chip);
+    this.emit("terminatedChildChip", chip)
   }
 
   /**
@@ -785,33 +758,33 @@ export abstract class Composite extends ChipBase {
    */
   protected _tickChildChips(): void {
     for (const childChip of Object.values(this._childChips)) {
-      if (childChip.state !== "inactive") childChip.tick(this._lastTickInfo);
+      if (childChip.state !== "inactive") childChip.tick(this._lastTickInfo)
     }
 
-    this._removeTerminatedChildChips();
+    this._removeTerminatedChildChips()
   }
 
   /** Terminate all the children, with the provided signal */
   protected _terminateAllChildChips(outputSignal?: Signal) {
     for (const childChip of Object.values(this._childChips)) {
       if (childChip.state === "active" || childChip.state === "paused") {
-        childChip.terminate(outputSignal);
+        childChip.terminate(outputSignal)
       }
 
-      this.emit("terminatedChildChip", childChip);
+      this.emit("terminatedChildChip", childChip)
     }
 
-    this._childChips = {};
+    this._childChips = {}
   }
 
   /** Remove any child chips */
   protected _removeTerminatedChildChips(): void {
     for (const id in this._childChips) {
-      const childChip = this._childChips[id];
+      const childChip = this._childChips[id]
 
       if (childChip.state === "inactive") {
-        delete this._childChips[id];
-        this.emit("terminatedChildChip", childChip);
+        delete this._childChips[id]
+        this.emit("terminatedChildChip", childChip)
       }
     }
   }
@@ -821,7 +794,7 @@ export abstract class Composite extends ChipBase {
    * Overload to add extra attributes to the context.
    */
   get defaultChildChipContext(): ChipContextResolvable | undefined {
-    return undefined;
+    return undefined
   }
 
   /** Template method called after children are ticked */
@@ -831,36 +804,38 @@ export abstract class Composite extends ChipBase {
 }
 
 export class ParallelOptions {
-  terminateOnCompletion = true;
+  terminateOnCompletion = true
 }
 
 /**
  * Executes a set of chips at the same time.
  * By default, terminates when all child chips have completed, unless `options.signalOnCompletion` is false.
  */
-export class Parallel extends Composite {
-  private readonly _options: ParallelOptions;
+export class Parallel<
+  ParallelEvents extends BaseCompositeEvents = BaseCompositeEvents
+> extends Composite<ParallelEvents> {
+  private readonly _options: ParallelOptions
 
-  private _chipActivationInfos: ChipActivationInfo[] = [];
-  private _infoToChip = new Map<ChipActivationInfo, Chip>();
-  private _activatedChipCount = 0;
+  private _chipActivationInfos: ChipActivationInfo[] = []
+  private _infoToChip = new Map<ChipActivationInfo, Chip>()
+  private _activatedChipCount = 0
 
   constructor(
     chipActivationInfos: Array<ChipActivationInfo | ChipResolvable>,
     options?: Partial<ParallelOptions>
   ) {
-    super();
+    super()
 
-    this._options = fillInOptions(options, new ParallelOptions());
-    this._infoToChip = new Map();
+    this._options = util.fillInOptions(options, new ParallelOptions())
+    this._infoToChip = new Map()
 
-    for (const e of chipActivationInfos) this.addChildChip(e);
+    for (const e of chipActivationInfos) this.addChildChip(e)
   }
 
   /** Add a new chip. If the chip is running, activate it */
   addChildChip(e: ChipActivationInfo | ChipResolvable) {
-    const info = isChipResolvable(e) ? { chip: e } : e;
-    this._chipActivationInfos.push(info);
+    const info = isChipResolvable(e) ? { chip: e } : e
+    this._chipActivationInfos.push(info)
 
     if (this.state !== "inactive") {
       // If no attribute or ID given, make a default one
@@ -870,25 +845,25 @@ export class Parallel extends Composite {
           : {
               ...info,
               id: this._activatedChipCount.toString(),
-            };
+            }
 
-      const chip = this._activateChildChip(info.chip, infoWithId);
-      this._infoToChip.set(info, chip);
+      const chip = this._activateChildChip(info.chip, infoWithId)
+      this._infoToChip.set(info, chip)
 
-      this._activatedChipCount++;
+      this._activatedChipCount++
     }
   }
 
   _onActivate() {
     if (this._chipActivationInfos.length === 0) {
       // Empty set, stop immediately
-      if (this._options.terminateOnCompletion) this.terminate(makeSignal());
-      return;
+      if (this._options.terminateOnCompletion) this.terminate(makeSignal())
+      return
     }
 
     // Activate all provided chips
     for (let i = 0; i < this._chipActivationInfos.length; i++) {
-      const info = this._chipActivationInfos[i];
+      const info = this._chipActivationInfos[i]
       // If no attribute or ID given, make a default one
       const infoWithId =
         info.attribute || info.id
@@ -896,12 +871,12 @@ export class Parallel extends Composite {
           : {
               ...info,
               id: this._activatedChipCount.toString(),
-            };
+            }
 
-      const chip = this._activateChildChip(info.chip, infoWithId);
-      this._infoToChip.set(info, chip);
+      const chip = this._activateChildChip(info.chip, infoWithId)
+      this._infoToChip.set(info, chip)
 
-      this._activatedChipCount++;
+      this._activatedChipCount++
     }
   }
 
@@ -910,7 +885,7 @@ export class Parallel extends Composite {
       Object.keys(this._childChips).length === 0 &&
       this._options.terminateOnCompletion
     )
-      this.terminate(makeSignal());
+      this.terminate(makeSignal())
   }
 
   /**
@@ -918,46 +893,48 @@ export class Parallel extends Composite {
    * If the chip is running, terminate it
    */
   removeChildChip(e: ChipActivationInfo | ChipResolvable | number): void {
-    let index: number;
+    let index: number
     if (typeof e === "number") {
-      index = e;
+      index = e
       if (index < 0 || index >= this._chipActivationInfos.length)
-        throw new Error("Invalid index of chip to remove");
+        throw new Error("Invalid index of chip to remove")
     } else {
-      index = this.indexOfChipActivationInfo(e);
-      if (index === -1) throw new Error("Cannot find chip to remove");
+      index = this.indexOfChipActivationInfo(e)
+      if (index === -1) throw new Error("Cannot find chip to remove")
     }
 
     // Remove chip from _chipActivationInfos
-    const activationInfo = this._chipActivationInfos[index];
-    this._chipActivationInfos.splice(index, 1);
+    const activationInfo = this._chipActivationInfos[index]
+    this._chipActivationInfos.splice(index, 1)
 
     if (this.state !== "inactive") {
-      const chip = this._infoToChip.get(activationInfo)!;
+      const chip = this._infoToChip.get(activationInfo)!
 
       // Remove chip  _infoToChip
-      this._infoToChip.delete(activationInfo);
+      this._infoToChip.delete(activationInfo)
 
       // Terminate chip
-      chip.terminate();
+      chip.terminate()
     }
   }
 
   indexOfChipActivationInfo(chip: ChipActivationInfo | ChipResolvable): number {
     if (isChipResolvable(chip)) {
-      return this._chipActivationInfos.findIndex((x) => x.chip === chip);
+      return this._chipActivationInfos.findIndex((x) => x.chip === chip)
     } else {
-      return this._chipActivationInfos.indexOf(chip);
+      return this._chipActivationInfos.indexOf(chip)
     }
   }
 }
 
-export class ContextProvider extends Composite {
+export class ContextProvider<
+  ContextProviderEvents extends BaseCompositeEvents = BaseCompositeEvents
+> extends Composite<ContextProviderEvents> {
   constructor(
     private readonly _context: Record<string, ChipResolvable>,
     private readonly _child: ChipResolvable
   ) {
-    super();
+    super()
   }
 
   protected _onActivate(): void {
@@ -966,21 +943,21 @@ export class ContextProvider extends Composite {
       this._activateChildChip(this._context[name], {
         id: name,
         includeInChildContext: true,
-      });
+      })
     }
 
     // Then activate the child
     {
       this._activateChildChip(this._child, {
         id: "child",
-      });
+      })
     }
   }
 }
 
 export class SequenceOptions {
-  loop = false;
-  terminateOnCompletion = true;
+  loop = false
+  terminateOnCompletion = true
 }
 
 /**
@@ -988,41 +965,43 @@ export class SequenceOptions {
   When done, terminates with output signal of the last chip in the sequence.
   Optionally can loop back to the first chip.
 */
-export class Sequence extends Composite {
-  private readonly _options: SequenceOptions;
+export class Sequence<
+  SequenceEvents extends BaseCompositeEvents = BaseCompositeEvents
+> extends Composite<SequenceEvents> {
+  private readonly _options: SequenceOptions
 
-  private _chipActivationInfos: ChipActivationInfo[] = [];
-  private _currentChipIndex = 0;
-  private _currentChip?: Chip;
+  private _chipActivationInfos: ChipActivationInfo[] = []
+  private _currentChipIndex = 0
+  private _currentChip?: Chip
 
   constructor(
     chipActivationInfos: Array<ChipActivationInfo | ChipResolvable>,
     options?: Partial<SequenceOptions>
   ) {
-    super();
+    super()
 
-    this._options = fillInOptions(options, new SequenceOptions());
+    this._options = util.fillInOptions(options, new SequenceOptions())
 
-    for (const e of chipActivationInfos) this.addChildChip(e);
+    for (const e of chipActivationInfos) this.addChildChip(e)
   }
 
   /** Add a new chip to the sequence */
   addChildChip(chip: ChipActivationInfo | ChipResolvable) {
     if (isChipResolvable(chip)) {
-      this._chipActivationInfos.push({ chip: chip });
+      this._chipActivationInfos.push({ chip: chip })
     } else {
-      this._chipActivationInfos.push(chip);
+      this._chipActivationInfos.push(chip)
     }
 
     if (this._state !== "inactive" && !this._currentChip) {
       // Pick up with the next chip
-      this._switchChip();
+      this._switchChip()
     }
   }
 
   /** Skips to the next chip */
   skip() {
-    this._advance(makeSignal("skip"));
+    this._advance(makeSignal("skip"))
   }
 
   private _switchChip() {
@@ -1030,12 +1009,12 @@ export class Sequence extends Composite {
     if (this._currentChip) {
       // The current chip may have already been terminated, if it terminated before
       if (Object.keys(this._childChips).length > 0)
-        this._terminateChildChip(this._currentChip);
-      delete this._currentChip;
+        this._terminateChildChip(this._currentChip)
+      delete this._currentChip
     }
 
     if (this._currentChipIndex < this._chipActivationInfos.length) {
-      const info = this._chipActivationInfos[this._currentChipIndex];
+      const info = this._chipActivationInfos[this._currentChipIndex]
 
       // If no attribute or ID given, make a default one
       const infoWithId =
@@ -1044,56 +1023,56 @@ export class Sequence extends Composite {
           : {
               ...info,
               id: (this._chipActivationInfos.length - 1).toString(),
-            };
+            }
 
-      this._currentChip = this._activateChildChip(info.chip, infoWithId);
+      this._currentChip = this._activateChildChip(info.chip, infoWithId)
     }
   }
 
   _onActivate() {
     this._currentChipIndex =
-      (this._reloadMemento?.data?.currentChipIndex as number) ?? 0;
-    delete this._currentChip;
+      (this._reloadMemento?.data?.currentChipIndex as number) ?? 0
+    delete this._currentChip
 
     if (this._chipActivationInfos.length === 0) {
       // Empty Sequence, stop immediately
-      if (this._options.terminateOnCompletion) this.terminate(makeSignal());
+      if (this._options.terminateOnCompletion) this.terminate(makeSignal())
     } else {
       // Start the Sequence
-      this._switchChip();
+      this._switchChip()
     }
   }
 
   _onAfterTick() {
-    if (!this._currentChip) return;
+    if (!this._currentChip) return
 
-    const signal = this._currentChip.outputSignal;
-    if (signal) this._advance(signal);
+    const signal = this._currentChip.outputSignal
+    if (signal) this._advance(signal)
   }
 
   _onTerminate() {
-    delete this._currentChip;
+    delete this._currentChip
   }
 
   /** Restart the sequence on the first chip */
   restart() {
-    this._currentChipIndex = 0;
-    this._switchChip();
+    this._currentChipIndex = 0
+    this._switchChip()
   }
 
   private _advance(signal: Signal) {
-    this._currentChipIndex++;
-    this._switchChip();
+    this._currentChipIndex++
+    this._switchChip()
 
     // If we've reached the end of the Sequence...
     if (this._currentChipIndex >= this._chipActivationInfos.length) {
       if (this._options.loop) {
         // ... and we loop, go back to start
-        this._currentChipIndex = 0;
-        this._switchChip();
+        this._currentChipIndex = 0
+        this._switchChip()
       } else if (this._options.terminateOnCompletion) {
         // otherwise terminate
-        this.terminate(signal);
+        this.terminate(signal)
       }
     }
   }
@@ -1101,23 +1080,27 @@ export class Sequence extends Composite {
   protected _makeReloadMementoData(): ReloadMementoData {
     return {
       currentChipIndex: this._currentChipIndex,
-    };
+    }
   }
 }
 
-export type StateTable = { [n: string]: ChipActivationInfo };
+export type StateTable = { [n: string]: ChipActivationInfo }
 export type StateTableDescriptor = {
-  [n: string]: ChipActivationInfo | ChipResolvable;
-};
+  [n: string]: ChipActivationInfo | ChipResolvable
+}
 
-export type SignalFunction = (context: ChipContext, signal: Signal) => Signal;
-export type SignalDescriptor = Signal | SignalFunction;
-export type SignalTable = { [name: string]: SignalDescriptor };
+export type SignalFunction = (context: ChipContext, signal: Signal) => Signal
+export type SignalDescriptor = Signal | SignalFunction
+export type SignalTable = { [name: string]: SignalDescriptor }
+
+export interface BaseStateMachineEvents extends BaseCompositeEvents {
+  stateChange: [previousState: Signal | undefined, nextState: Signal]
+}
 
 export class StateMachineOptions {
-  startingState: Signal | string = "start";
-  signals?: { [n: string]: SignalDescriptor | string };
-  endingStates: string[] = ["end"];
+  startingState: Signal | string = "start"
+  signals?: { [n: string]: SignalDescriptor | string }
+  endingStates: string[] = ["end"]
 }
 
 /**
@@ -1134,46 +1117,51 @@ export class StateMachineOptions {
  * state, in which case it switches directly to that state,
  *
  * If you want to create embedded signal tables, try the `makeSignalTable()` function.
+ *
+ * Events:
+ * - stateChange(previousState: Signal, nextState: Signal)
  */
-export class StateMachine extends Composite {
-  public readonly options: StateMachineOptions;
+export class StateMachine<
+  StateMachineEvents extends BaseStateMachineEvents = BaseStateMachineEvents
+> extends Composite<StateMachineEvents> {
+  public readonly options: StateMachineOptions
 
-  private _states: StateTable = {};
-  private _signals: SignalTable = {};
-  private _startingState: SignalDescriptor;
-  private _visitedStates!: Signal[];
-  private _activeChildChip?: Chip;
-  private _lastSignal?: Signal;
+  private _states: StateTable = {}
+  private _signals: SignalTable = {}
+  private _startingState: SignalDescriptor
+  private _visitedStates!: Signal[]
+  private _activeChildChip?: Chip
+  private _lastSignal?: Signal
 
   constructor(
     states: StateTableDescriptor,
     options?: Partial<StateMachineOptions>
   ) {
-    super();
+    super()
 
     // Create state table
     for (const name in states) {
-      const state = states[name];
+      const state = states[name]
       if (isChipResolvable(state)) {
-        this._states[name] = { chip: state };
+        this._states[name] = { chip: state }
       } else {
-        this._states[name] = state;
+        this._states[name] = state
       }
     }
 
-    this.options = fillInOptions(options, new StateMachineOptions());
+    this.options = util.fillInOptions(options, new StateMachineOptions())
 
     // Ensure all signals are of the correct type
     if (typeof this.options.startingState === "string")
-      this._startingState = makeSignal(this.options.startingState);
-    else this._startingState = this.options.startingState;
+      this._startingState = makeSignal(this.options.startingState)
+    else this._startingState = this.options.startingState
 
     for (const key in this.options.signals) {
-      const value = this.options.signals[key];
+      const value = this.options.signals[key]
       if (typeof value === "string") {
-        this._signals[key] = makeSignal(value);
+        this._signals[key] = makeSignal(value)
       } else {
-        this._signals[key] = value;
+        this._signals[key] = value
       }
     }
   }
@@ -1184,81 +1172,81 @@ export class StateMachine extends Composite {
     inputSignal?: Signal,
     reloadMemento?: ReloadMemento
   ) {
-    super.activate(tickInfo, chipContext, inputSignal, reloadMemento);
+    super.activate(tickInfo, chipContext, inputSignal, reloadMemento)
 
-    this._visitedStates = [];
+    this._visitedStates = []
 
     if (this._reloadMemento) {
-      this._visitedStates = this._reloadMemento.data?.visitedStates as Signal[];
-      this._changeState(_.last(this._visitedStates) ?? makeSignal());
+      this._visitedStates = this._reloadMemento.data?.visitedStates as Signal[]
+      this._changeState(_.last(this._visitedStates) ?? makeSignal())
     } else {
       const startingState = _.isFunction(this._startingState)
         ? this._startingState(chipContext, makeSignal())
-        : this._startingState;
-      this._changeState(startingState);
+        : this._startingState
+      this._changeState(startingState)
     }
   }
 
   _onAfterTick() {
-    if (!this._activeChildChip) return;
+    if (!this._activeChildChip) return
 
-    const signal = this._activeChildChip.outputSignal;
+    const signal = this._activeChildChip.outputSignal
     if (signal && this._lastSignal) {
-      let nextStateDescriptor: Signal;
+      let nextStateDescriptor: Signal
       // The signal could directly be the name of another state, or ending state
       if (!(this._lastSignal.name in this._signals)) {
         if (
           signal.name in this._states ||
           this.options.endingStates.includes(signal.name)
         ) {
-          nextStateDescriptor = signal;
+          nextStateDescriptor = signal
         } else {
-          throw new Error(`Cannot find signal for state '${signal.name}'`);
+          throw new Error(`Cannot find signal for state '${signal.name}'`)
         }
       } else {
         const signalDescriptor: SignalDescriptor =
-          this._signals[this._lastSignal.name];
+          this._signals[this._lastSignal.name]
         if (_.isFunction(signalDescriptor)) {
-          nextStateDescriptor = signalDescriptor(this._chipContext, signal);
+          nextStateDescriptor = signalDescriptor(this._chipContext, signal)
         } else {
-          nextStateDescriptor = signalDescriptor;
+          nextStateDescriptor = signalDescriptor
         }
       }
 
       // Unpack the next state
-      let nextState: Signal;
+      let nextState: Signal
       if (
         !nextStateDescriptor.params ||
         _.isEmpty(nextStateDescriptor.params)
       ) {
         // By default, pass through the params in the input signal
-        nextState = makeSignal(nextStateDescriptor.name, signal.params);
+        nextState = makeSignal(nextStateDescriptor.name, signal.params)
       } else {
-        nextState = nextStateDescriptor;
+        nextState = nextStateDescriptor
       }
 
-      this._changeState(nextState);
+      this._changeState(nextState)
     }
   }
 
   _onTerminate() {
-    delete this._activeChildChip;
-    delete this._lastSignal;
+    delete this._activeChildChip
+    delete this._lastSignal
   }
 
   protected _makeReloadMementoData(): ReloadMementoData {
     return {
       visitedStates: this._visitedStates,
-    };
+    }
   }
 
   /** Switch directly to a new state, terminating the current one */
   changeState(nextState: string | Signal): void {
     if (typeof nextState === "string") {
-      nextState = makeSignal(nextState);
+      nextState = makeSignal(nextState)
     }
 
-    this._changeState(nextState);
+    this._changeState(nextState)
   }
 
   private _changeState(nextState: Signal): void {
@@ -1266,47 +1254,47 @@ export class StateMachine extends Composite {
     if (this._activeChildChip) {
       // The state may have already been terminated, if terminated
       if (Object.keys(this._childChips).length > 0)
-        this._terminateChildChip(this._activeChildChip);
-      delete this._activeChildChip;
+        this._terminateChildChip(this._activeChildChip)
+      delete this._activeChildChip
     }
 
     // If reached an ending state, stop here.
     if (this.options.endingStates.includes(nextState.name)) {
-      this._lastSignal = nextState;
-      this._visitedStates.push(nextState);
+      this._lastSignal = nextState
+      this._visitedStates.push(nextState)
 
       // Terminate with signal
-      this.terminate(nextState);
-      return;
+      this.terminate(nextState)
+      return
     }
 
     if (nextState.name in this._states) {
-      const nextStateContext = this._states[nextState.name];
+      const nextStateContext = this._states[nextState.name]
       this._activeChildChip = this._activateChildChip(nextStateContext.chip, {
         context: nextStateContext.context,
         inputSignal: nextState,
         id: nextState.name,
-      });
+      })
     } else {
-      throw new Error(`Cannot find state '${nextState.name}'`);
+      throw new Error(`Cannot find state '${nextState.name}'`)
     }
 
-    const previousSignal = this._lastSignal;
-    this._lastSignal = nextState;
+    const previousSignal = this._lastSignal
+    this._lastSignal = nextState
 
-    this._visitedStates.push(nextState);
+    this._visitedStates.push(nextState)
 
-    this.emit("stateChange", previousSignal, nextState);
+    this.emit("stateChange", previousSignal, nextState)
   }
 
   /** The last signal used by the machine. If the machine is running, this describes the current state */
   get lastSignal() {
-    return this._lastSignal;
+    return this._lastSignal
   }
 
   /** An array of all the signals the machine has gone through, in order. It may contain duplicates */
   get visitedStates() {
-    return this._visitedStates;
+    return this._visitedStates
   }
 }
 
@@ -1322,33 +1310,37 @@ export class StateMachine extends Composite {
     `
 */
 export function makeSignalTable(table: {
-  [key: string]: string | SignalFunction;
+  [key: string]: string | SignalFunction
 }): SignalFunction {
   const f = function (context: ChipContext, signal: Signal): Signal {
     if (signal.name in table) {
-      const signalResolvable = table[signal.name];
+      const signalResolvable = table[signal.name]
       if (_.isFunction(signalResolvable)) {
-        return signalResolvable(context, signal);
+        return signalResolvable(context, signal)
       } else {
-        return makeSignal(signalResolvable);
+        return makeSignal(signalResolvable)
       }
     } else {
-      throw new Error(`Cannot find state ${signal.name}`);
+      throw new Error(`Cannot find state ${signal.name}`)
     }
-  };
-  f.table = table; // For debugging purposes
+  }
+  f.table = table // For debugging purposes
 
-  return f;
+  return f
 }
 
-export interface FunctionalFunctions {
-  activate: (chip: Functional) => void;
-  tick: (chip: Functional) => void;
-  pause: (chip: Functional) => void;
-  resume: (chip: Functional) => void;
-  terminate: (chip: Functional) => void;
-  shouldTerminate: (chip: Functional) => Signal | string | boolean;
-  makeReloadMemento(): ReloadMemento;
+export interface FunctionalFunctions<
+  FunctionalEvents extends BaseCompositeEvents = BaseCompositeEvents
+> {
+  activate: (chip: Functional<FunctionalEvents>) => void
+  tick: (chip: Functional<FunctionalEvents>) => void
+  pause: (chip: Functional<FunctionalEvents>) => void
+  resume: (chip: Functional<FunctionalEvents>) => void
+  terminate: (chip: Functional<FunctionalEvents>) => void
+  shouldTerminate: (
+    chip: Functional<FunctionalEvents>
+  ) => Signal | string | boolean
+  makeReloadMemento(): ReloadMemento
 }
 
 /**
@@ -1362,55 +1354,59 @@ export interface FunctionalFunctions {
       terminate: () => console.log("terminate"),
     });
 */
-export class Functional extends Composite {
-  constructor(public readonly functions: Partial<FunctionalFunctions>) {
-    super();
+export class Functional<
+  FunctionalEvents extends BaseCompositeEvents = BaseCompositeEvents
+> extends Composite<FunctionalEvents> {
+  constructor(
+    public readonly functions: Partial<FunctionalFunctions<FunctionalEvents>>
+  ) {
+    super()
   }
 
   protected get lastFrameInfo(): TickInfo {
-    return this._lastTickInfo;
+    return this._lastTickInfo
   }
   protected get inputSignal(): Signal | undefined {
-    return this._inputSignal;
+    return this._inputSignal
   }
   protected get reloadMemento(): ReloadMemento | undefined {
-    return this._reloadMemento;
+    return this._reloadMemento
   }
 
   protected _onActivate() {
-    if (this.functions.activate) this.functions.activate(this);
-    this._checkForTermination();
+    if (this.functions.activate) this.functions.activate(this)
+    this._checkForTermination()
   }
 
   protected _onTick() {
-    if (this.functions.tick) this.functions.tick(this);
-    this._checkForTermination();
+    if (this.functions.tick) this.functions.tick(this)
+    this._checkForTermination()
   }
 
   protected _onPause() {
-    if (this.functions.pause) this.functions.pause(this);
+    if (this.functions.pause) this.functions.pause(this)
   }
 
   protected _onResume() {
-    if (this.functions.resume) this.functions.resume(this);
+    if (this.functions.resume) this.functions.resume(this)
   }
 
   protected _onTerminate() {
-    if (this.functions.terminate) this.functions.terminate(this);
+    if (this.functions.terminate) this.functions.terminate(this)
   }
 
   private _checkForTermination() {
-    if (!this.functions.shouldTerminate) return;
+    if (!this.functions.shouldTerminate) return
 
-    const result = this.functions.shouldTerminate(this);
+    const result = this.functions.shouldTerminate(this)
     if (result) {
       if (_.isString(result)) {
-        this.terminate(makeSignal(result));
+        this.terminate(makeSignal(result))
       } else if (_.isObject(result)) {
-        this.terminate(result);
+        this.terminate(result)
       } else {
         // result is true
-        this.terminate(makeSignal());
+        this.terminate(makeSignal())
       }
     }
   }
@@ -1423,36 +1419,36 @@ export class Functional extends Composite {
 */
 export class Lambda<That> extends ChipBase {
   constructor(public f: (that?: That) => unknown, public that?: That) {
-    super();
+    super()
   }
 
   _onActivate() {
-    const result = this.that ? this.f.bind(this.that)(this.that) : this.f();
+    const result = this.that ? this.f.bind(this.that)(this.that) : this.f()
 
-    if (typeof result === "string") this.terminate(makeSignal(result));
-    else if (isSignal(result)) this.terminate(result);
-    else this.terminate(makeSignal());
+    if (typeof result === "string") this.terminate(makeSignal(result))
+    else if (isSignal(result)) this.terminate(result)
+    else this.terminate(makeSignal())
   }
 }
 
 /** Waits until time is up, then requests signal */
 export class Wait extends ChipBase {
-  private _accumulatedTime!: number;
+  private _accumulatedTime!: number
 
   /** @wait is in milliseconds */
   constructor(public readonly wait: number) {
-    super();
+    super()
   }
 
   _onActivate() {
-    this._accumulatedTime = 0;
+    this._accumulatedTime = 0
   }
 
   _onTick() {
-    this._accumulatedTime += this._lastTickInfo.timeSinceLastTick;
+    this._accumulatedTime += this._lastTickInfo.timeSinceLastTick
 
     if (this._accumulatedTime >= this.wait) {
-      this.terminate();
+      this.terminate()
     }
   }
 }
@@ -1462,7 +1458,7 @@ export class Wait extends ChipBase {
  */
 export class Block extends ChipBase {
   done(signal = makeSignal()) {
-    this.terminate(signal);
+    this.terminate(signal)
   }
 }
 
@@ -1470,76 +1466,85 @@ export class Block extends ChipBase {
  * Waits for an event to be delivered, and decides to request a signal depending on the event value.
  * @handler is a function of the event arguments, and should return either a signal or a boolean as to whether to signal or not
  */
-export class WaitForEvent extends ChipBase {
+export class WaitForEvent<
+  Emitter extends object,
+  EventNames extends Emitter extends ChipBase<infer _EventNames>
+    ? _EventNames
+    : BaseEventNames,
+  EventName extends keyof EventNames & string
+> extends ChipBase {
   constructor(
-    public emitter: NodeEventSource,
-    public eventName: string,
-    public handler: (...args: unknown[]) => Signal | boolean = () => true
+    public emitter: Emitter,
+    public eventName: EventName,
+    public handler: (...args: EventNames[EventName]) => Signal | boolean = () =>
+      true
   ) {
-    super();
+    super()
   }
 
   _onActivate() {
-    this._subscribe(this.emitter, this.eventName, this._handleEvent);
+    this._subscribe(this.emitter, this.eventName, this._handleEvent)
   }
 
-  _handleEvent(...args: unknown[]) {
-    const result = this.handler(...args);
-    if (!result) return;
+  _handleEvent(...args: EventNames[EventName]) {
+    const result = this.handler(...args)
+    if (!result) return
 
     if (_.isObject(result)) {
-      this.terminate(result);
+      this.terminate(result)
     } else {
       // result is true
-      this.terminate();
+      this.terminate()
     }
   }
 }
 
 export interface AlternativeChipActivationInfo extends ChipActivationInfo {
-  signal?: Signal;
+  signal?: Signal
 }
 
 /**
  *  Chip that requests a signal as soon as one of it's children requests one
  */
 export class Alternative extends Composite {
-  private readonly _chipActivationInfos: AlternativeChipActivationInfo[];
+  private readonly _chipActivationInfos: AlternativeChipActivationInfo[]
 
   // signal defaults to the string version of the index in the array (to avoid problem of 0 being considered as falsy)
   constructor(
     chipActivationInfos: Array<ChipResolvable | AlternativeChipActivationInfo>
   ) {
-    super();
+    super()
 
     // Set default signal as the string version of the index in the array (to avoid problem of 0 being considered as falsy)
     this._chipActivationInfos = chipActivationInfos.map((info, key) => {
       if (isChip(info) || typeof info === "function") {
         return {
           chip: info,
-        };
+        }
       } else {
-        return info;
+        return info
       }
-    });
+    })
   }
 
   _onActivate() {
     for (let i = 0; i < this._chipActivationInfos.length; i++) {
-      const chipActivationInfo = this._chipActivationInfos[i];
+      const chipActivationInfo = this._chipActivationInfos[i]
 
-      this._subscribe(chipActivationInfo.chip, "terminated", () =>
-        this._onChildTerminated(i)
-      );
+      this._subscribe(
+        resolveChip(chipActivationInfo.chip, chipActivationInfo.context ?? {}),
+        "terminated",
+        () => this._onChildTerminated(i)
+      )
       this._activateChildChip(chipActivationInfo.chip, {
         context: chipActivationInfo.context,
-      });
+      })
     }
   }
 
   private _onChildTerminated(index: number) {
     const terminateWith =
-      this._chipActivationInfos[index].signal ?? makeSignal(index.toString());
-    this.terminate(terminateWith);
+      this._chipActivationInfos[index].signal ?? makeSignal(index.toString())
+    this.terminate(terminateWith)
   }
 }

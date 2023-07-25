@@ -1,35 +1,36 @@
-import * as _ from "radash";
+import * as _ from "radash"
 
-import * as chip from "./chip";
+import * as chip from "./chip"
+import * as util from "./util"
 
 interface HMR<Data extends { reloadMemento?: chip.ReloadMemento }> {
-  dispose: (cb: (data: Data) => void) => void;
-  accept: (cb: (dependencies: string[]) => void) => void;
-  data: Data;
+  dispose: (cb: (data: Data) => void) => void
+  accept: (cb: (dependencies: string[]) => void) => void
+  data: Data
 }
 
 export class RunnerOptions<
   HMRData extends { reloadMemento?: chip.ReloadMemento }
 > {
-  rootContext: chip.ChipContext = {};
-  inputSignal: chip.Signal = chip.makeSignal();
+  rootContext: chip.ChipContext = {}
+  inputSignal: chip.Signal = chip.makeSignal()
 
   /** If minFps <= 0, it is ignored */
-  minFps = 10;
+  minFps = 10
 
   /** Enable hot reloading by passing it `module.hot` */
-  hmr?: HMR<HMRData>;
+  hmr?: HMR<HMRData>
 }
 
 /**
  * Manages running the game code at a regular refresh rate.
  */
 export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
-  private _options: RunnerOptions<HMRData>;
-  private _isRunning = false;
-  private _lastTimeStamp!: number;
-  private _rootContext!: chip.ChipContext;
-  private _rootChip!: chip.Chip;
+  private _options: RunnerOptions<HMRData>
+  private _isRunning = false
+  private _lastTimeStamp!: number
+  private _rootContext!: chip.ChipContext
+  private _rootChip!: chip.Chip
 
   /**
    *
@@ -40,108 +41,108 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
     private readonly _rootChipResolvable: chip.ChipResolvable,
     options?: Partial<RunnerOptions<HMRData>>
   ) {
-    this._options = chip.fillInOptions(options, new RunnerOptions());
+    this._options = util.fillInOptions(options, new RunnerOptions())
 
-    this._isRunning = false;
+    this._isRunning = false
   }
 
   start() {
-    if (this._isRunning) throw new Error("Already started");
+    if (this._isRunning) throw new Error("Already started")
 
-    this._isRunning = true;
-    this._lastTimeStamp = 0;
+    this._isRunning = true
+    this._lastTimeStamp = 0
 
-    this._rootContext = chip.processChipContext(this._options.rootContext, {});
+    this._rootContext = chip.processChipContext(this._options.rootContext, {})
     this._rootChip = _.isFunction(this._rootChipResolvable)
       ? this._rootChipResolvable(this._rootContext, chip.makeSignal())!
-      : this._rootChipResolvable;
+      : this._rootChipResolvable
 
-    if (!this._rootChip) throw new Error("Root chip is null");
+    if (!this._rootChip) throw new Error("Root chip is null")
 
-    this._rootChip.once("terminated", () => (this._isRunning = false));
+    this._rootChip.once("terminated", () => (this._isRunning = false))
 
     const tickInfo: chip.TickInfo = {
       timeSinceLastTick: 0,
-    };
+    }
     this._rootChip.activate(
       tickInfo,
       this._rootContext,
       this._options.inputSignal
-    );
+    )
 
-    requestAnimationFrame(() => this._onTick());
+    requestAnimationFrame(() => this._onTick())
 
-    if (this._options.hmr) this._enableHotReloading();
+    if (this._options.hmr) this._enableHotReloading()
   }
 
   stop() {
-    if (!this._isRunning) throw new Error("Already stopped");
+    if (!this._isRunning) throw new Error("Already stopped")
 
-    this._isRunning = false;
-    this._rootChip.terminate(chip.makeSignal("stop"));
+    this._isRunning = false
+    this._rootChip.terminate(chip.makeSignal("stop"))
   }
 
   private _onTick() {
-    if (!this._isRunning) return;
+    if (!this._isRunning) return
 
-    const timeStamp = performance.now();
+    const timeStamp = performance.now()
 
-    let timeSinceLastTick = timeStamp - this._lastTimeStamp;
-    this._lastTimeStamp = timeStamp;
+    let timeSinceLastTick = timeStamp - this._lastTimeStamp
+    this._lastTimeStamp = timeStamp
 
     // If no time elapsed, don't update
-    if (timeSinceLastTick <= 0) return;
+    if (timeSinceLastTick <= 0) return
 
     // Optionally clamp time since last frame
     if (this._options.minFps >= 0) {
       timeSinceLastTick = Math.min(
         timeSinceLastTick,
         1000 / this._options.minFps
-      );
+      )
     }
 
     const tickInfo: chip.TickInfo = {
       timeSinceLastTick,
-    };
+    }
 
-    this._rootChip.tick(tickInfo);
+    this._rootChip.tick(tickInfo)
 
-    requestAnimationFrame(() => this._onTick());
+    requestAnimationFrame(() => this._onTick())
   }
 
   private _enableHotReloading() {
-    console.log("enabling hot reloading");
+    console.log("enabling hot reloading")
 
     this._options.hmr?.dispose((data) => {
       // module is about to be replaced.
       // You can save data that should be accessible to the new asset in `data`
-      console.log("this._options.hmr.dispose() called");
+      console.log("this._options.hmr.dispose() called")
 
-      data.reloadMemento = this._rootChip.makeReloadMemento();
-    });
+      data.reloadMemento = this._rootChip.makeReloadMemento()
+    })
 
     this._options.hmr?.accept(() => {
       // module or one of its dependencies was just updated.
       // data stored in `dispose` is available in `this._options.hmr.data`
-      console.log("this._options.hmr.accept() called");
+      console.log("this._options.hmr.accept() called")
 
-      const reloadMemento = this._options.hmr?.data?.reloadMemento;
-      console.log("reloading from", reloadMemento);
+      const reloadMemento = this._options.hmr?.data?.reloadMemento
+      console.log("reloading from", reloadMemento)
 
       const tickInfo: chip.TickInfo = {
         timeSinceLastTick: 0,
-      };
-      this._rootChip.terminate(chip.makeSignal("beforeReload"));
+      }
+      this._rootChip.terminate(chip.makeSignal("beforeReload"))
       this._rootChip.activate(
         tickInfo,
         this._rootContext,
         chip.makeSignal("afterReload"),
         reloadMemento
-      );
-    });
+      )
+    })
   }
 
   get isRunning(): boolean {
-    return this._isRunning;
+    return this._isRunning
   }
 }
