@@ -7,7 +7,8 @@
     "watch": "tsc --watch",
     "test": "yarn eslint && tsc --noEmit && jest",
     "format": "npx prettier ./src --write",
-    "docs": "yarn typedoc"
+    "docs": "yarn typedoc",
+    "prepublishOnly": "yarn format && yarn test"
   },
   "license": "MIT",
   "prettier": {
@@ -27,6 +28,7 @@
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "ts-jest": "^29.0.5",
-    "typedoc": "^0.24.7"
+    "typedoc": "^0.24.7",
+    "yarn": "^1.22.19"
   }
 }
