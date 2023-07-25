@@ -11,8 +11,8 @@ export interface TweenOptions {
   to: number
   duration: number
   easing?: easing.EasingFunction
-  onActivate: () => unknown
-  onTick?: (value: number) => unknown
+  onActivate?: () => unknown
+  onTick: (value: number) => unknown
   onTerminate?: () => unknown
 }
 
