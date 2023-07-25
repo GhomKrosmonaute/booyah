@@ -8,7 +8,7 @@
     "test": "yarn eslint && tsc --noEmit && jest",
     "format": "npx prettier ./src --write",
     "docs": "yarn typedoc",
-    "prepublishOnly": "yarn format && yarn test"
+    "prepublishOnly": "yarn format && yarn build && yarn test && yarn docs"
   },
   "license": "MIT",
   "prettier": {
