@@ -158,10 +158,10 @@ export interface Chip extends event.NodeEventSource {
   terminate(outputSignal?: Signal): void
 
   /** Pause the chip, informing it that it won't receive ticks for a while */
-  pause(tickInfo: TickInfo): void
+  pause(): void
 
   /** Resumes the chip after it was paused */
-  resume(tickInfo: TickInfo): void
+  resume(): void
 
   makeReloadMemento(): ReloadMemento
 }
@@ -250,7 +250,7 @@ export abstract class ChipBase<
     this.emit("terminated", this._outputSignal)
   }
 
-  public pause(tickInfo: TickInfo): void {
+  public pause(): void {
     if (this._state !== "active")
       throw new Error(`pause() called from state ${this._state}`)
 
@@ -259,7 +259,7 @@ export abstract class ChipBase<
     this._onPause()
   }
 
-  public resume(tickInfo: TickInfo): void {
+  public resume(): void {
     if (this._state !== "paused")
       throw new Error(`resume() called from state ${this._state}`)
 
@@ -578,21 +578,21 @@ export abstract class Composite<
     this.emit("terminated", this._outputSignal)
   }
 
-  public pause(tickInfo: TickInfo): void {
-    super.pause(tickInfo)
+  public pause(): void {
+    super.pause()
 
     this._removeTerminatedChildChips()
     for (const child of Object.values(this._childChips)) {
-      child.pause(tickInfo)
+      child.pause()
     }
   }
 
-  public resume(tickInfo: TickInfo): void {
-    super.resume(tickInfo)
+  public resume(): void {
+    super.resume()
 
     this._removeTerminatedChildChips()
     for (const child of Object.values(this._childChips)) {
-      child.resume(tickInfo)
+      child.resume()
     }
   }
 
