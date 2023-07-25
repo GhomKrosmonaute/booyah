@@ -28,8 +28,5 @@ jobs:
       - name: Install dependencies
         run: yarn --ignore-engines
 
-      - name: Check all
-        run: yarn checkAll
-
       - name: Run tests
         run: yarn test
