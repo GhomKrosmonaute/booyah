@@ -275,6 +275,32 @@ export function isNullish(x: unknown): boolean {
 
 // Geometry
 
+/** Linear interpolation between arrays a and b, using the fraction p */
+export function lerpArray(a: number[], b: number[], p: number) {
+  const result = []
+  for (let i = 0; i < a.length; i++) {
+    result.push(lerp(a[i], b[i], p))
+  }
+  return result
+}
+
+/** Returns a random number between a and b */
+export function randomInRange(a: number, b: number): number {
+  return a + Math.random() * (b - a)
+}
+
+/** Returns if two numbers are within an epsilon of each other */
+export function areAlmostEqualNumber(x: number, y: number): boolean {
+  return Math.abs(x - y) <= EPSILON
+}
+
+let id = 0
+export function uniqueId(prefix: string): string {
+  return prefix + id++
+}
+
+// Geometry
+
 export const EPSILON = 0.001
 
 /** Returns a number for x that is between min and max */
@@ -285,15 +311,6 @@ export function clamp(x: number, min: number, max: number): number {
 /** Linear interpolation between numbers a and b, using the fraction p */
 export function lerp(a: number, b: number, p: number): number {
   return a + (b - a) * p
-}
-
-/** Linear interpolation between arrays a and b, using the fraction p */
-export function lerpArray(a: number[], b: number[], p: number) {
-  const result = []
-  for (let i = 0; i < a.length; i++) {
-    result.push(lerp(a[i], b[i], p))
-  }
-  return result
 }
 
 /**
@@ -331,7 +348,6 @@ export function radiansToDegrees(a: number): number {
 export function degreesToRadians(a: number): number {
   return (a * Math.PI) / 180
 }
-
 /**
  Returs an angle between a and b, turning at a given speed.
  Will not "overshoot" b.
@@ -356,17 +372,7 @@ export function moveTowardsScalar(a: number, b: number, speed: number): number {
   return lerp(a, b, clamp(speed / d, 0, 1))
 }
 
-/** Returns a random number between a and b */
-export function randomInRange(a: number, b: number): number {
-  return a + Math.random() * (b - a)
-}
-
 /** Returns if two numbers are within an epsilon of each other */
-export function areAlmostEqualNumber(x: number, y: number): boolean {
+export function numbersAreAlmostEqual(x: number, y: number): boolean {
   return Math.abs(x - y) <= EPSILON
-}
-
-let id = 0
-export function uniqueId(prefix: string): string {
-  return prefix + id++
 }

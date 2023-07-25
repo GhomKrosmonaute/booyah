@@ -1,4 +1,4 @@
-import * as geom from "./geom"
+import * as util from "./util"
 import * as chip from "./chip"
 import * as easing from "./easing"
 
@@ -66,7 +66,7 @@ export class Tween<
         this._timePassed / this.options.duration
       )
 
-      this._value = geom.lerp(this._startValue, this.options.to, easedProgress)
+      this._value = util.lerp(this._startValue, this.options.to, easedProgress)
 
       this._updateValue()
     }
