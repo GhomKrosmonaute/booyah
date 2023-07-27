@@ -217,7 +217,7 @@ export function setPropertyInTree(root: Root, name: string, value: any): void {
  *
  * If no valid language is found, will return the default language.
  */
-export function determineLanguage(
+export function getLocale(
   validLanguages = ["en"],
   defaultLanguage = "en"
 ): string {
@@ -377,6 +377,7 @@ export function numbersAreAlmostEqual(x: number, y: number): boolean {
   return Math.abs(x - y) <= EPSILON
 }
 
+/** Shorten Error stack by removing lines about booyah (not works with JS usage) */
 export function shortStackError(error: Error | string) {
   if (typeof error === "string") error = new Error(error)
 
