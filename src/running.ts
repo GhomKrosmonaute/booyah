@@ -47,7 +47,7 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
   }
 
   start() {
-    if (this._isRunning) throw new Error("Already started")
+    if (this._isRunning) throw util.shortStackError("Already started")
 
     this._isRunning = true
     this._lastTimeStamp = 0
@@ -57,7 +57,7 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
       ? this._rootChipResolvable(this._rootContext, chip.makeSignal())!
       : this._rootChipResolvable
 
-    if (!this._rootChip) throw new Error("Root chip is null")
+    if (!this._rootChip) throw util.shortStackError("Root chip is null")
 
     this._rootChip.once("terminated", () => (this._isRunning = false))
 
@@ -76,7 +76,7 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
   }
 
   stop() {
-    if (!this._isRunning) throw new Error("Already stopped")
+    if (!this._isRunning) throw util.shortStackError("Already stopped")
 
     this._isRunning = false
     this._rootChip.terminate(chip.makeSignal("stop"))

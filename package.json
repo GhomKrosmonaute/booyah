@@ -1,12 +1,11 @@
 {
   "name": "@ghom/booyah",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "TypeScript game engine",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
     "test": "yarn eslint && tsc --noEmit && jest",
     "format": "npx prettier ./src --write",
     "docs": "yarn typedoc",

@@ -376,3 +376,14 @@ export function moveTowardsScalar(a: number, b: number, speed: number): number {
 export function numbersAreAlmostEqual(x: number, y: number): boolean {
   return Math.abs(x - y) <= EPSILON
 }
+
+export function shortStackError(error: Error | string) {
+  if (typeof error === "string") error = new Error(error)
+
+  error.stack = error.stack
+    ?.split("\n")
+    .filter((line) => !line.includes("booyah"))
+    .join("\n")
+
+  return error
+}

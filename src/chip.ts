@@ -87,7 +87,7 @@ export function resolveChip(
   if (isChip(resolvable)) return resolvable
   else {
     const chip = resolvable(context, makeSignal())
-    if (!chip) throw new Error("Chip factory returned null")
+    if (!chip) throw util.shortStackError("Chip factory returned null")
     return chip
   }
 }
@@ -210,7 +210,7 @@ export abstract class ChipBase<
     reloadMemento?: ReloadMemento
   ): void {
     if (this._state !== "inactive")
-      throw new Error(`activate() called from state ${this._state}`)
+      throw util.shortStackError(`activate() called from state ${this._state}`)
 
     this._chipContext = chipContext
     this._lastTickInfo = tickInfo
@@ -230,7 +230,7 @@ export abstract class ChipBase<
   public tick(tickInfo: TickInfo): void {
     if (this._state === "paused") return
     if (this._state !== "active")
-      throw new Error(`tick() called from state ${this._state}`)
+      throw util.shortStackError(`tick() called from state ${this._state}`)
 
     this._lastTickInfo = tickInfo
     this._onTick()
@@ -238,7 +238,7 @@ export abstract class ChipBase<
 
   public terminate(outputSignal: Signal = makeSignal()): void {
     if (this._state !== "active" && this._state !== "paused")
-      throw new Error(`terminate() called from state ${this._state}`)
+      throw util.shortStackError(`terminate() called from state ${this._state}`)
 
     this._outputSignal = outputSignal
     this._onTerminate()
@@ -252,7 +252,7 @@ export abstract class ChipBase<
 
   public pause(): void {
     if (this._state !== "active")
-      throw new Error(`pause() called from state ${this._state}`)
+      throw util.shortStackError(`pause() called from state ${this._state}`)
 
     this._state = "paused"
 
@@ -261,7 +261,7 @@ export abstract class ChipBase<
 
   public resume(): void {
     if (this._state !== "paused")
-      throw new Error(`resume() called from state ${this._state}`)
+      throw util.shortStackError(`resume() called from state ${this._state}`)
 
     this._state = "active"
 
@@ -293,7 +293,7 @@ export abstract class ChipBase<
       } else if (event.isEventTarget(emitter)) {
         subscriptionHandler = new event.EventTargetSubscriptionHandler()
       } else {
-        throw new Error(
+        throw util.shortStackError(
           `Emitter is of unknown type "${typeof emitter}", requires custom SubscriptionHandler`
         )
       }
@@ -337,7 +337,7 @@ export abstract class ChipBase<
       } else if (event.isEventTarget(emitter)) {
         subscriptionHandler = new event.EventTargetSubscriptionHandler()
       } else {
-        throw new Error(
+        throw util.shortStackError(
           `Emitter is of unknown type "${typeof emitter}", requires custom SubscriptionHandler`
         )
       }
@@ -399,7 +399,9 @@ export abstract class ChipBase<
 
   public makeReloadMemento(): ReloadMemento {
     if (this._state !== "active" && this._state !== "paused")
-      throw new Error(`makeReloadMemento() called from state ${this._state}`)
+      throw util.shortStackError(
+        `makeReloadMemento() called from state ${this._state}`
+      )
 
     const childMementos: Record<string, ReloadMemento> = {}
     for (const childId in this.children) {
@@ -539,7 +541,7 @@ export abstract class Composite<
   public tick(tickInfo: TickInfo): void {
     if (this._state === "paused") return
     if (this._state !== "active")
-      throw new Error(`tick() called from state ${this._state}`)
+      throw util.shortStackError(`tick() called from state ${this._state}`)
 
     if (this._deferredOutputSignal) {
       this.terminate(this._deferredOutputSignal)
@@ -559,7 +561,7 @@ export abstract class Composite<
     // Can't just call super.terminate() here, the order is slightly different
 
     if (this._state !== "active" && this._state !== "paused")
-      throw new Error(`terminate() called from state ${this._state}`)
+      throw util.shortStackError(`terminate() called from state ${this._state}`)
 
     if (this._methodCallInProgress) {
       this._deferredOutputSignal = outputSignal
@@ -610,7 +612,8 @@ export abstract class Composite<
     chipResolvable: ChipResolvable,
     options?: Partial<ActivateChildChipOptions>
   ): Chip {
-    if (this.state === "inactive") throw new Error("Composite is inactive")
+    if (this.state === "inactive")
+      throw util.shortStackError("Composite is inactive")
 
     options = util.fillInOptions(options, new ActivateChildChipOptions())
 
@@ -625,7 +628,7 @@ export abstract class Composite<
       thisAsAny[options.attribute]
     ) {
       if (!isChip(thisAsAny[options.attribute]))
-        throw new Error(
+        throw util.shortStackError(
           `Setting the attribute ${
             options.attribute
           } would replace a non-chip. Current attribute value = ${
@@ -642,7 +645,7 @@ export abstract class Composite<
         providedId = util.uniqueId(providedId)
       }
       if (providedId in this._childChips)
-        throw new Error("Duplicate child chip ID provided")
+        throw util.shortStackError("Duplicate child chip ID provided")
     }
 
     const inputSignal = options.inputSignal ?? makeSignal()
@@ -662,7 +665,7 @@ export abstract class Composite<
     }
 
     // If no chip is returned, then nothing more to do
-    if (!chip) throw new Error("No chip returned")
+    if (!chip) throw util.shortStackError("No chip returned")
 
     // Look for reload memento, if an id is provided
     let reloadMemento: ReloadMemento | undefined
@@ -714,7 +717,7 @@ export abstract class Composite<
 
     if (options.includeInChildContext) {
       if (!providedId)
-        throw new Error(
+        throw util.shortStackError(
           "To include a child chip in the context, provide an attribute name or ID"
         )
 
@@ -733,7 +736,8 @@ export abstract class Composite<
   }
 
   protected _terminateChildChip(chip: Chip, outputSignal?: Signal): void {
-    if (this.state === "inactive") throw new Error("Composite is inactive")
+    if (this.state === "inactive")
+      throw util.shortStackError("Composite is inactive")
 
     // Try to find value
     let childId: string | undefined
@@ -743,7 +747,7 @@ export abstract class Composite<
         break
       }
     }
-    if (!childId) throw new Error("Cannot find chip to terminate")
+    if (!childId) throw util.shortStackError("Cannot find chip to terminate")
 
     chip.terminate(outputSignal)
 
@@ -897,10 +901,10 @@ export class Parallel<
     if (typeof e === "number") {
       index = e
       if (index < 0 || index >= this._chipActivationInfos.length)
-        throw new Error("Invalid index of chip to remove")
+        throw util.shortStackError("Invalid index of chip to remove")
     } else {
       index = this.indexOfChipActivationInfo(e)
-      if (index === -1) throw new Error("Cannot find chip to remove")
+      if (index === -1) throw util.shortStackError("Cannot find chip to remove")
     }
 
     // Remove chip from _chipActivationInfos
@@ -1201,7 +1205,9 @@ export class StateMachine<
         ) {
           nextStateDescriptor = signal
         } else {
-          throw new Error(`Cannot find signal for state '${signal.name}'`)
+          throw util.shortStackError(
+            `Cannot find signal for state '${signal.name}'`
+          )
         }
       } else {
         const signalDescriptor: SignalDescriptor =
@@ -1276,7 +1282,7 @@ export class StateMachine<
         id: nextState.name,
       })
     } else {
-      throw new Error(`Cannot find state '${nextState.name}'`)
+      throw util.shortStackError(`Cannot find state '${nextState.name}'`)
     }
 
     const previousSignal = this._lastSignal
@@ -1321,7 +1327,7 @@ export function makeSignalTable(table: {
         return makeSignal(signalResolvable)
       }
     } else {
-      throw new Error(`Cannot find state ${signal.name}`)
+      throw util.shortStackError(`Cannot find state ${signal.name}`)
     }
   }
   f.table = table // For debugging purposes
