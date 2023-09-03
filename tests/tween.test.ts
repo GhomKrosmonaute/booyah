@@ -31,5 +31,25 @@ describe("Tween", () => {
     tweening.tick({ timeSinceLastTick: 500 })
 
     expect(value).toBe(100)
+    expect(tweening.state).toBe("inactive")
+  })
+
+  test("In a sequence", () => {
+    const tweening = new tween.Tween({
+      from: 0,
+      to: 1,
+      duration: 500,
+      onTick: (v) => null,
+    })
+
+    const sequence = new chip.Sequence([tweening])
+
+    sequence.activate({ timeSinceLastTick: 0 }, makeChipContext())
+
+    expect(tweening.state).toBe("active")
+
+    sequence.tick({ timeSinceLastTick: 500 })
+
+    expect(tweening.state).toBe("inactive")
   })
 })

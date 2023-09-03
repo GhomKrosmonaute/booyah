@@ -52,22 +52,20 @@ export class Tween<
   }
 
   _onTick() {
-    if (this._timePassed >= this.options.duration) {
-      this._outputSignal = chip.makeSignal()
+    this._timePassed += this._lastTickInfo.timeSinceLastTick
 
+    const easedProgress = this._easing(this._timePassed / this.options.duration)
+
+    this._value = util.lerp(this._startValue, this.options.to, easedProgress)
+
+    if (this._timePassed >= this.options.duration) {
       // Snap to end
       this._value = this.options.to
 
       this._updateValue()
+
+      this.terminate()
     } else {
-      this._timePassed += this._lastTickInfo.timeSinceLastTick
-
-      const easedProgress = this._easing(
-        this._timePassed / this.options.duration
-      )
-
-      this._value = util.lerp(this._startValue, this.options.to, easedProgress)
-
       this._updateValue()
     }
   }
