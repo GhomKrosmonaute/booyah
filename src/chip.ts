@@ -1554,3 +1554,56 @@ export class Alternative extends Composite {
     this.terminate(terminateWith)
   }
 }
+
+export type QueueItemState = "running" | "finished" | "waiting"
+
+export interface QueueItem {
+  state: QueueItemState
+  context: ChipContext
+  entityResolvable: ChipResolvable
+}
+
+/**
+ * Chip that runs a set of chips in sequence, one after the other. <br>
+ * When the last chip terminates, the queue is waiting for a new chip to be added.
+ */
+export class Queue extends Composite {
+  private _queue: QueueItem[] = []
+
+  public add(item: ChipResolvable, context: ChipContext): this {
+    this._queue.push({
+      state: "waiting",
+      entityResolvable: item,
+      context,
+    })
+
+    return this
+  }
+
+  protected _onTick() {
+    this._queue = this._queue.filter((item) => {
+      const finished = item.state === "finished"
+      return !finished
+    })
+
+    if (this._queue.length === 0) return
+
+    const item = this._queue[0] ?? undefined
+
+    if (item.state !== "waiting") return
+
+    this._activateItem(item)
+  }
+
+  protected _onTerminate() {
+    this._queue = []
+  }
+
+  private _activateItem(item: QueueItem) {
+    item.state = "running"
+
+    this._activateChildChip(item.entityResolvable, {
+      context: item.context,
+    })
+  }
+}
