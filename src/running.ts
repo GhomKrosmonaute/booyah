@@ -82,6 +82,19 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
     this._rootChip.terminate(chip.makeSignal("stop"))
   }
 
+  pause() {
+    if (!this._isRunning) throw util.shortStackError("Already stopped")
+
+    this._isRunning = false
+  }
+
+  resume() {
+    if (this._isRunning) throw util.shortStackError("Already playing")
+
+    this._isRunning = true
+    requestAnimationFrame(() => this._onTick())
+  }
+
   private _onTick() {
     if (!this._isRunning) return
 
