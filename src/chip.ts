@@ -498,6 +498,7 @@ export class Transitory<
 }
 
 export interface BaseCompositeEvents extends BaseChipBaseEvents {
+  beforeActivatedChildChip: [chip: Chip, context: ChipContext, signal: Signal]
   activatedChildChip: [chip: Chip, context: ChipContext, signal: Signal]
   terminatedChildChip: [chip: Chip]
 }
@@ -531,6 +532,7 @@ export class ActivateChildChipOptions {
  * Base class for chips that contain other chips
  *
  * Events:
+ * - beforeActivatedChildChip(chip: Chip, context: ChipContext, signal: Signal)
  * - activatedChildChip(chip: Chip, context: ChipContext, signal: Signal)
  * - terminatedChildChip(chip: Chip)
  */
@@ -735,6 +737,8 @@ export abstract class Composite<
         })
       }
     }
+
+    this.emit("beforeActivatedChildChip", chip, childContext, inputSignal)
 
     chip.activate(this._lastTickInfo, childContext, inputSignal, reloadMemento)
 
