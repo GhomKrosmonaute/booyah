@@ -169,6 +169,7 @@ export interface Chip extends event.NodeEventSource {
 export interface BaseChipBaseEvents extends BaseEventNames {
   activated: [inputSignal?: Signal]
   terminated: [outputSignal: Signal]
+  resized: [width: number, height: number]
 }
 
 /**
@@ -224,6 +225,10 @@ export abstract class ChipBase<
 
     this._onActivate()
 
+    this._subscribe(window.document, "resize", () => this.resize())
+
+    this.resize()
+
     this.emit("activated", inputSignal)
   }
 
@@ -234,6 +239,17 @@ export abstract class ChipBase<
 
     this._lastTickInfo = tickInfo
     this._onTick()
+  }
+
+  public resize() {
+    const size: [number, number] = [
+      document.documentElement.clientWidth,
+      document.documentElement.clientHeight,
+    ]
+
+    this._onResize(...size)
+
+    this.emit("resized", ...size)
   }
 
   public terminate(outputSignal: Signal = makeSignal()): void {
@@ -426,6 +442,13 @@ export abstract class ChipBase<
    * Template method called by `tick()`.
    */
   protected _onTick() {
+    /* no op */
+  }
+
+  /**
+   * Template method called by `resize()`
+   */
+  protected _onResize(width: number, height: number) {
     /* no op */
   }
 

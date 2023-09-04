@@ -34,7 +34,7 @@ Optionally can loop back to the first chip.</p>
 <ul class="tsd-hierarchy">
 <li><span class="target">Sequence</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L972">src/chip.ts:972</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L995">src/chip.ts:995</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -76,6 +76,7 @@ Optionally can loop back to the first chip.</p>
 <a href="chip.Sequence.html#_onActivate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Activate</span></a>
 <a href="chip.Sequence.html#_onAfterTick" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>After<wbr/>Tick</span></a>
 <a href="chip.Sequence.html#_onPause" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Pause</span></a>
+<a href="chip.Sequence.html#_onResize" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Resize</span></a>
 <a href="chip.Sequence.html#_onResume" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Resume</span></a>
 <a href="chip.Sequence.html#_onTerminate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Terminate</span></a>
 <a href="chip.Sequence.html#_onTick" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Tick</span></a>
@@ -95,6 +96,7 @@ Optionally can loop back to the first chip.</p>
 <a href="chip.Sequence.html#on" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>on</span></a>
 <a href="chip.Sequence.html#once" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>once</span></a>
 <a href="chip.Sequence.html#pause" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>pause</span></a>
+<a href="chip.Sequence.html#resize" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>resize</span></a>
 <a href="chip.Sequence.html#restart" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>restart</span></a>
 <a href="chip.Sequence.html#resume" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>resume</span></a>
 <a href="chip.Sequence.html#skip" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>skip</span></a>
@@ -123,7 +125,7 @@ Optionally can loop back to the first chip.</p>
 <h4 class="tsd-returns-title">Returns <a href="chip.Sequence.html" class="tsd-signature-type tsd-kind-class">Sequence</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">SequenceEvents</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#constructor">constructor</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L981">src/chip.ts:981</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1004">src/chip.ts:1004</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_childChips" class="tsd-anchor"></a>
@@ -131,46 +133,46 @@ Optionally can loop back to the first chip.</p>
 <div class="tsd-signature"><span class="tsd-kind-property">_child<wbr/>Chips</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../interfaces/chip.Chip.html" class="tsd-signature-type tsd-kind-interface">Chip</a><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_childChips">_childChips</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L517">src/chip.ts:517</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L540">src/chip.ts:540</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="_chipActivationInfos" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_chip<wbr/>Activation<wbr/>Infos</span><a href="#_chipActivationInfos" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_chip<wbr/>Activation<wbr/>Infos</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/chip.ChipActivationInfo.html" class="tsd-signature-type tsd-kind-interface">ChipActivationInfo</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L977">src/chip.ts:977</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1000">src/chip.ts:1000</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_chipContext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_chip<wbr/>Context</span><a href="#_chipContext" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_chip<wbr/>Context</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_chipContext">_chipContext</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L194">src/chip.ts:194</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L195">src/chip.ts:195</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="_currentChip" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <code class="tsd-tag ts-flagOptional">Optional</code> <span>_current<wbr/>Chip</span><a href="#_currentChip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_current<wbr/>Chip</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/chip.Chip.html" class="tsd-signature-type tsd-kind-interface">Chip</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L979">src/chip.ts:979</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1002">src/chip.ts:1002</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="_currentChipIndex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_current<wbr/>Chip<wbr/>Index</span><a href="#_currentChipIndex" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_current<wbr/>Chip<wbr/>Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L978">src/chip.ts:978</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1001">src/chip.ts:1001</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_eventListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_event<wbr/>Listeners</span><a href="#_eventListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_event<wbr/>Listeners</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/event.IEventListener.html" class="tsd-signature-type tsd-kind-interface">IEventListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_eventListeners">_eventListeners</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L198">src/chip.ts:198</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L199">src/chip.ts:199</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_inputSignal" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <code class="tsd-tag ts-flagOptional">Optional</code> <span>_input<wbr/>Signal</span><a href="#_inputSignal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_input<wbr/>Signal</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/chip.Signal.html" class="tsd-signature-type tsd-kind-interface">Signal</a></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_inputSignal">_inputSignal</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L196">src/chip.ts:196</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L197">src/chip.ts:197</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_lastTickInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_last<wbr/>Tick<wbr/>Info</span><a href="#_lastTickInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_last<wbr/>Tick<wbr/>Info</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/chip.TickInfo.html" class="tsd-signature-type tsd-kind-interface">TickInfo</a></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_lastTickInfo">_lastTickInfo</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L195">src/chip.ts:195</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L196">src/chip.ts:196</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited tsd-is-external"><a id="_listeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_listeners</span><a href="#_listeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_listeners</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Listener</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">SequenceEvents</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
@@ -181,25 +183,25 @@ Optionally can loop back to the first chip.</p>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>_options</span><a href="#_options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_options</span><span class="tsd-signature-symbol">:</span> <a href="chip.SequenceOptions.html" class="tsd-signature-type tsd-kind-class">SequenceOptions</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L975">src/chip.ts:975</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L998">src/chip.ts:998</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_outputSignal" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <code class="tsd-tag ts-flagOptional">Optional</code> <span>_output<wbr/>Signal</span><a href="#_outputSignal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_output<wbr/>Signal</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/chip.Signal.html" class="tsd-signature-type tsd-kind-interface">Signal</a></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_outputSignal">_outputSignal</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L199">src/chip.ts:199</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L200">src/chip.ts:200</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_reloadMemento" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <code class="tsd-tag ts-flagOptional">Optional</code> <span>_reload<wbr/>Memento</span><a href="#_reloadMemento" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_reload<wbr/>Memento</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/chip.ReloadMemento.html" class="tsd-signature-type tsd-kind-interface">ReloadMemento</a></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_reloadMemento">_reloadMemento</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L197">src/chip.ts:197</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L198">src/chip.ts:198</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_state" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_state</span><a href="#_state" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_state</span><span class="tsd-signature-symbol">:</span> <a href="../types/chip.ChipState.html" class="tsd-signature-type tsd-kind-type-alias">ChipState</a><span class="tsd-signature-symbol"> = &quot;inactive&quot;</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_state">_state</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L200">src/chip.ts:200</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L201">src/chip.ts:201</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="children" class="tsd-anchor"></a>
@@ -213,7 +215,7 @@ Optionally can loop back to the first chip.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from Composite.children</p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L601">src/chip.ts:601</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L624">src/chip.ts:624</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="chipContext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>chip<wbr/>Context</span><a href="#chipContext" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -222,7 +224,7 @@ Optionally can loop back to the first chip.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Inherited from Composite.chipContext</p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L202">src/chip.ts:202</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L203">src/chip.ts:203</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="defaultChildChipContext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>default<wbr/>Child<wbr/>Chip<wbr/>Context</span><a href="#defaultChildChipContext" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -235,7 +237,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from Composite.defaultChildChipContext</p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L800">src/chip.ts:800</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L823">src/chip.ts:823</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="outputSignal" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>output<wbr/>Signal</span><a href="#outputSignal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -247,7 +249,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from Composite.outputSignal</p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L392">src/chip.ts:392</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L408">src/chip.ts:408</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="state" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>state</span><a href="#state" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -259,7 +261,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from Composite.state</p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L396">src/chip.ts:396</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L412">src/chip.ts:412</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_activateChildChip" class="tsd-anchor"></a>
@@ -285,7 +287,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_activateChildChip">_activateChildChip</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L611">src/chip.ts:611</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L634">src/chip.ts:634</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="_advance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_advance</span><a href="#_advance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-private">
@@ -298,7 +300,7 @@ Overload to add extra attributes to the context.</p>
 <h5><span class="tsd-kind-parameter">signal</span>: <a href="../interfaces/chip.Signal.html" class="tsd-signature-type tsd-kind-interface">Signal</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1067">src/chip.ts:1067</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1090">src/chip.ts:1090</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="_makeReloadMementoData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_make<wbr/>Reload<wbr/>Memento<wbr/>Data</span><a href="#_makeReloadMementoData" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -310,7 +312,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_makeReloadMementoData">_makeReloadMementoData</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1084">src/chip.ts:1084</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1107">src/chip.ts:1107</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="_onActivate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_on<wbr/>Activate</span><a href="#_onActivate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -322,7 +324,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onActivate">_onActivate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1036">src/chip.ts:1036</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1059">src/chip.ts:1059</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="_onAfterTick" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_on<wbr/>After<wbr/>Tick</span><a href="#_onAfterTick" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -334,7 +336,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onAfterTick">_onAfterTick</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1050">src/chip.ts:1050</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1073">src/chip.ts:1073</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_onPause" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_on<wbr/>Pause</span><a href="#_onPause" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -346,7 +348,26 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onPause">_onPause</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L442">src/chip.ts:442</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L465">src/chip.ts:465</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_onResize" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_on<wbr/>Resize</span><a href="#_onResize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="_onResize._onResize-1"><span class="tsd-kind-call-signature">_on<wbr/>Resize</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">width</span>, <span class="tsd-kind-parameter">height</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#_onResize._onResize-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Template method called by <code>resize()</code></p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">width</span>: <span class="tsd-signature-type">number</span></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">height</span>: <span class="tsd-signature-type">number</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onResize">_onResize</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L451">src/chip.ts:451</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_onResume" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_on<wbr/>Resume</span><a href="#_onResume" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -358,7 +379,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onResume">_onResume</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L449">src/chip.ts:449</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L472">src/chip.ts:472</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="_onTerminate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_on<wbr/>Terminate</span><a href="#_onTerminate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -370,7 +391,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onTerminate">_onTerminate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1057">src/chip.ts:1057</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1080">src/chip.ts:1080</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_onTick" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_on<wbr/>Tick</span><a href="#_onTick" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -382,7 +403,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_onTick">_onTick</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L428">src/chip.ts:428</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L444">src/chip.ts:444</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_removeTerminatedChildChips" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_remove<wbr/>Terminated<wbr/>Child<wbr/>Chips</span><a href="#_removeTerminatedChildChips" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -394,7 +415,7 @@ Overload to add extra attributes to the context.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_removeTerminatedChildChips">_removeTerminatedChildChips</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L785">src/chip.ts:785</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L808">src/chip.ts:808</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_subscribe" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_subscribe</span><a href="#_subscribe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -443,7 +464,7 @@ If you are interfacing with a different event system, you can provide a
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_subscribe">_subscribe</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L278">src/chip.ts:278</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L294">src/chip.ts:294</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_subscribeOnce" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_subscribe<wbr/>Once</span><a href="#_subscribeOnce" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -492,7 +513,7 @@ If you are interfacing with a different event system, you can provide a
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_subscribeOnce">_subscribeOnce</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L322">src/chip.ts:322</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L338">src/chip.ts:338</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="_switchChip" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_switch<wbr/>Chip</span><a href="#_switchChip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-private">
@@ -500,7 +521,7 @@ If you are interfacing with a different event system, you can provide a
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1011">src/chip.ts:1011</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1034">src/chip.ts:1034</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_terminateAllChildChips" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_terminate<wbr/>All<wbr/>Child<wbr/>Chips</span><a href="#_terminateAllChildChips" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -517,7 +538,7 @@ If you are interfacing with a different event system, you can provide a
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_terminateAllChildChips">_terminateAllChildChips</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L772">src/chip.ts:772</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L795">src/chip.ts:795</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_terminateChildChip" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_terminate<wbr/>Child<wbr/>Chip</span><a href="#_terminateChildChip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -533,7 +554,7 @@ If you are interfacing with a different event system, you can provide a
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_terminateChildChip">_terminateChildChip</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L738">src/chip.ts:738</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L761">src/chip.ts:761</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_tickChildChips" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_tick<wbr/>Child<wbr/>Chips</span><a href="#_tickChildChips" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -546,7 +567,7 @@ Sends tick to all .</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_tickChildChips">_tickChildChips</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L763">src/chip.ts:763</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L786">src/chip.ts:786</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_unsubscribe" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_unsubscribe</span><a href="#_unsubscribe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -580,7 +601,7 @@ unsubscribe only to those.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#_unsubscribe">_unsubscribe</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L361">src/chip.ts:361</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L377">src/chip.ts:377</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="activate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>activate</span><a href="#activate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -604,7 +625,7 @@ Should only be called from an inactive state</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#activate">activate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L523">src/chip.ts:523</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L546">src/chip.ts:546</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="addChildChip" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Child<wbr/>Chip</span><a href="#addChildChip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -620,7 +641,7 @@ Should only be called from an inactive state</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L993">src/chip.ts:993</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1016">src/chip.ts:1016</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="emit" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>emit</span><a href="#emit" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -650,7 +671,7 @@ Should only be called from an inactive state</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/chip.ReloadMemento.html" class="tsd-signature-type tsd-kind-interface">ReloadMemento</a></h4><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#makeReloadMemento">makeReloadMemento</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L400">src/chip.ts:400</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L416">src/chip.ts:416</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="off" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>off</span><a href="#off" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -725,7 +746,16 @@ Should only be called from an inactive state</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#pause">pause</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L583">src/chip.ts:583</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L606">src/chip.ts:606</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="resize" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>resize</span><a href="#resize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="resize.resize-1"><span class="tsd-kind-call-signature">resize</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#resize.resize-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#resize">resize</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L244">src/chip.ts:244</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="restart" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>restart</span><a href="#restart" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -736,7 +766,7 @@ Should only be called from an inactive state</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1062">src/chip.ts:1062</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1085">src/chip.ts:1085</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="resume" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resume</span><a href="#resume" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -748,7 +778,7 @@ Should only be called from an inactive state</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#resume">resume</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L592">src/chip.ts:592</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L615">src/chip.ts:615</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="skip" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>skip</span><a href="#skip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -759,7 +789,7 @@ Should only be called from an inactive state</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L1007">src/chip.ts:1007</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L1030">src/chip.ts:1030</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="terminate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>terminate</span><a href="#terminate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -776,7 +806,7 @@ Should only be called from an inactive state</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#terminate">terminate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L560">src/chip.ts:560</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L583">src/chip.ts:583</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="tick" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>tick</span><a href="#tick" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -794,7 +824,7 @@ Overload this method in subclasses to change the behavior</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="chip.Composite.html">Composite</a>.<a href="chip.Composite.html#tick">tick</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/07ed142/src/chip.ts#L541">src/chip.ts:541</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/GhomKrosmonaute/booyah/blob/c3eafde/src/chip.ts#L564">src/chip.ts:564</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -839,6 +869,7 @@ Overload this method in subclasses to change the behavior</p>
 <li><a href="#_onActivate" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Activate</span></a></li>
 <li><a href="#_onAfterTick" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>After<wbr/>Tick</span></a></li>
 <li><a href="#_onPause" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Pause</span></a></li>
+<li><a href="#_onResize" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Resize</span></a></li>
 <li><a href="#_onResume" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Resume</span></a></li>
 <li><a href="#_onTerminate" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Terminate</span></a></li>
 <li><a href="#_onTick" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_on<wbr/>Tick</span></a></li>
@@ -858,6 +889,7 @@ Overload this method in subclasses to change the behavior</p>
 <li><a href="#on" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>on</span></a></li>
 <li><a href="#once" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>once</span></a></li>
 <li><a href="#pause" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>pause</span></a></li>
+<li><a href="#resize" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>resize</span></a></li>
 <li><a href="#restart" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>restart</span></a></li>
 <li><a href="#resume" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>resume</span></a></li>
 <li><a href="#skip" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>skip</span></a></li>

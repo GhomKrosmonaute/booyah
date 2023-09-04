@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-
 import { jest, describe, expect, test } from "@jest/globals"
 
 import * as chip from "../src/chip"

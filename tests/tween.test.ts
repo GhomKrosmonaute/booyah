@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { describe, test, expect } from "@jest/globals"
 
 import * as tween from "../src/tween"
