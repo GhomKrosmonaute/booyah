@@ -70,6 +70,14 @@ class MockComposite extends chip.Composite {
   }
 }
 
+class MockUnreadyComposite extends chip.Composite {
+  constructor(duration: number) {
+    super()
+
+    this._preparation = new chip.Wait(duration)
+  }
+}
+
 describe("Chip", () => {
   let e: MockChip
 
@@ -328,6 +336,7 @@ describe("Composite", () => {
       expect(child._onActivate).toBeCalledTimes(5)
       expect(child._onTick).toBeCalledTimes(5)
       expect(child._onPause).toBeCalledTimes(5)
+      expect(child._onResize).toBeCalledTimes(5)
       expect(child._onResume).toBeCalledTimes(5)
       expect(child._onTerminate).toBeCalledTimes(5)
     }
@@ -439,6 +448,48 @@ describe("Composite", () => {
 
     parent.terminate()
     expect(parent.outputSignal).toBeDefined()
+  })
+
+  test("use the isReady flag", () => {
+    const notReadyChildren = [
+      new MockUnreadyComposite(1000),
+      new MockUnreadyComposite(1000),
+      new MockUnreadyComposite(1000),
+    ]
+
+    const notReadyParent = new (class extends MockComposite {
+      _onActivate() {
+        for (const child of notReadyChildren) this._activateChildChip(child)
+
+        this._preparation = new chip.Wait(500)
+      }
+    })()
+
+    notReadyParent.activate(makeFrameInfo(), makeChipContext(), makeSignal())
+
+    expect(notReadyParent.state).toBe("active")
+
+    // @ts-ignore
+    expect(notReadyParent._isReady).toBe(false)
+    expect(notReadyParent.isReady).toBe(false)
+
+    notReadyParent.tick({ timeSinceLastTick: 500 })
+
+    // @ts-ignore
+    expect(notReadyParent._isReady).toBe(true)
+    expect(notReadyParent.isReady).toBe(false)
+
+    notReadyParent.tick({ timeSinceLastTick: 500 })
+
+    // @ts-ignore
+    expect(notReadyParent._isReady).toBe(true)
+    expect(notReadyParent.isReady).toBe(true)
+
+    notReadyParent.terminate()
+
+    // @ts-ignore
+    expect(notReadyParent._isReady).toBe(false)
+    expect(notReadyParent.isReady).toBe(false)
   })
 })
 

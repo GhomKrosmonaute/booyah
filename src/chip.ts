@@ -539,11 +539,23 @@ export class ActivateChildChipOptions {
 export abstract class Composite<
   CompositeEvents extends BaseCompositeEvents = BaseCompositeEvents
 > extends ChipBase<CompositeEvents> {
-  protected _childChips!: Record<string, Chip>
   private _childChipContext!: Record<string, unknown>
   private _deferredOutputSignal!: Signal
   // Are the activate() or tick() methods currently being run?
   private _methodCallInProgress!: boolean
+  private _isReady!: boolean
+
+  protected _childChips!: Record<string, Chip>
+  protected _preparation?: ChipResolvable
+
+  get isReady(): boolean {
+    return (
+      this._isReady &&
+      Object.values(this._childChips).every(
+        (child) => !(child instanceof Composite) || child.isReady
+      )
+    )
+  }
 
   public activate(
     tickInfo: TickInfo,
@@ -557,6 +569,19 @@ export abstract class Composite<
     this._methodCallInProgress = true
     super.activate(tickInfo, chipContext, inputSignal, reloadMemento)
     this._methodCallInProgress = false
+
+    this._isReady = this._preparation === undefined
+
+    if (this._preparation) {
+      this._activateChildChip(
+        new Sequence([
+          this._preparation,
+          new Lambda(() => {
+            this._isReady = true
+          }),
+        ])
+      )
+    }
   }
 
   /**
@@ -594,6 +619,7 @@ export abstract class Composite<
     }
 
     this._state = "inactive"
+    this._isReady = false
 
     this._unsubscribe() // Remove all event listeners
 
