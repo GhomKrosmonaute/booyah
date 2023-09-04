@@ -225,7 +225,7 @@ export abstract class ChipBase<
 
     this._onActivate()
 
-    this._subscribe(window.document, "resize", () => this.resize())
+    this._subscribe(window, "resize", () => this.resize())
 
     this.resize()
 

@@ -31,6 +31,7 @@ class MockChip extends chip.ChipBase<MockChipEvents> {
     super()
     this._onActivate = jest.fn()
     this._onTick = jest.fn()
+    this._onResize = jest.fn()
     this._onTerminate = jest.fn()
     this._onPause = jest.fn()
     this._onResume = jest.fn()
@@ -41,6 +42,9 @@ class MockChip extends chip.ChipBase<MockChipEvents> {
     /* no op */
   }
   public _onTick() {
+    /* no op */
+  }
+  public _onResize() {
     /* no op */
   }
   public _onTerminate() {
@@ -87,6 +91,7 @@ describe("Chip", () => {
     expect(e._onTerminate).toBeCalledTimes(5)
     expect(e._onPause).toBeCalledTimes(5)
     expect(e._onResume).toBeCalledTimes(5)
+    expect(e._onResize).toBeCalledTimes(5)
   })
 
   test("throws on multiple activate", () => {
