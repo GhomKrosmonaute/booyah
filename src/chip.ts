@@ -83,13 +83,9 @@ export type ChipResolvable = Chip | ChipFactory
 export function resolveChip(
   resolvable: ChipResolvable,
   context: Record<string, any>
-): Chip {
+): Chip | undefined {
   if (isChip(resolvable)) return resolvable
-  else {
-    const chip = resolvable(context, makeSignal())
-    if (!chip) throw util.shortStackError("Chip factory returned null")
-    return chip
-  }
+  else return resolvable(context, makeSignal())
 }
 
 export interface ChipActivationInfo extends ActivateChildChipOptions {
@@ -708,12 +704,7 @@ export abstract class Composite<
       options.context
     )
 
-    let chip: Chip | undefined
-    if (_.isFunction(chipResolvable)) {
-      chip = chipResolvable(childContext, inputSignal)
-    } else {
-      chip = chipResolvable
-    }
+    let chip = resolveChip(chipResolvable, childContext)
 
     // If no chip is returned, then nothing more to do
     if (!chip) throw util.shortStackError("No chip returned")
@@ -1589,12 +1580,14 @@ export class Alternative extends Composite {
   _onActivate() {
     for (let i = 0; i < this._chipActivationInfos.length; i++) {
       const chipActivationInfo = this._chipActivationInfos[i]
-
-      this._subscribe(
-        resolveChip(chipActivationInfo.chip, chipActivationInfo.context ?? {}),
-        "terminated",
-        () => this._onChildTerminated(i)
+      const chip = resolveChip(
+        chipActivationInfo.chip,
+        chipActivationInfo.context ?? {}
       )
+
+      if (!chip) continue
+
+      this._subscribe(chip, "terminated", () => this._onChildTerminated(i))
       this._activateChildChip(chipActivationInfo.chip, {
         context: chipActivationInfo.context,
       })
@@ -1623,7 +1616,14 @@ export interface QueueItem {
 export class Queue extends Composite {
   private _queue: QueueItem[] = []
 
-  public add(item: ChipResolvable, context: ChipContext): this {
+  get isEmpty() {
+    return this._queue.length === 0
+  }
+
+  public add(
+    item: ChipResolvable,
+    context: ChipContext = this.chipContext
+  ): this {
     this._queue.push({
       state: "waiting",
       entityResolvable: item,
@@ -1631,6 +1631,17 @@ export class Queue extends Composite {
     })
 
     return this
+  }
+
+  /**
+   * Terminates the currently running chip, and starts the next one.
+   */
+  public next() {
+    if (this._queue.length === 0) return
+
+    const item = this._queue.find((item) => item.state === "running")
+
+    if (item) resolveChip(item.entityResolvable, item.context)?.terminate()
   }
 
   protected _onTick() {
@@ -1655,8 +1666,16 @@ export class Queue extends Composite {
   private _activateItem(item: QueueItem) {
     item.state = "running"
 
-    this._activateChildChip(item.entityResolvable, {
-      context: item.context,
-    })
+    this._activateChildChip(
+      new Sequence([
+        item.entityResolvable,
+        new Lambda(() => {
+          item.state = "finished"
+        }),
+      ]),
+      {
+        context: item.context,
+      }
+    )
   }
 }

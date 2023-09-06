@@ -943,6 +943,49 @@ describe("Alternative", () => {
   })
 })
 
+describe("Queue", () => {
+  const children = [new MockChip(), new MockChip(), new MockChip()]
+
+  test("child's finish state fired", () => {
+    const queue = new chip.Queue()
+
+    queue.add(children[0]).add(children[1]).add(children[2])
+
+    queue.activate(makeFrameInfo(), makeChipContext(), makeSignal())
+    queue.tick(makeFrameInfo())
+
+    expect(queue.state).toBe("active")
+    expect(children[0].state).toBe("active")
+    expect(queue.isEmpty).toBe(false)
+
+    children[0].terminate()
+    queue.tick(makeFrameInfo())
+    queue.tick(makeFrameInfo())
+
+    expect(queue.state).toBe("active")
+    expect(children[0].state).toBe("inactive")
+    expect(children[1].state).toBe("active")
+    expect(queue.isEmpty).toBe(false)
+
+    children[1].terminate()
+    queue.tick(makeFrameInfo())
+    queue.tick(makeFrameInfo())
+
+    expect(queue.state).toBe("active")
+    expect(children[1].state).toBe("inactive")
+    expect(children[2].state).toBe("active")
+    expect(queue.isEmpty).toBe(false)
+
+    children[2].terminate()
+    queue.tick(makeFrameInfo())
+    queue.tick(makeFrameInfo())
+
+    expect(queue.state).toBe("active")
+    expect(children[2].state).toBe("inactive")
+    expect(queue.isEmpty).toBe(true)
+  })
+})
+
 //// Test hot reload features
 
 class ReloadingChip extends chip.ChipBase {
