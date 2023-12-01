@@ -16,8 +16,8 @@ function makeFrameInfo(): chip.TickInfo {
   }
 }
 
-function makeSignal(): chip.Signal {
-  return chip.makeSignal()
+function makeSignal<N extends string>(n?: N, p?: {}): chip.Signal<N> {
+  return new chip.Signal(n, p)
 }
 
 interface MockChipEvents extends chip.BaseChipBaseEvents {
@@ -643,7 +643,7 @@ describe("Sequence", () => {
     // Run 3rd child twice, then terminate
     parent.tick(makeFrameInfo())
     parent.tick(makeFrameInfo())
-    children[2].terminate(chip.makeSignal("third"))
+    children[2].terminate(makeSignal("third"))
     parent.tick(makeFrameInfo())
 
     // Each child should be updated 2 times
@@ -768,7 +768,9 @@ describe("Sequence", () => {
 describe("StateMachine", () => {
   test("runs start state", () => {
     const states = { start: new MockChip() }
-    const stateMachine = new chip.StateMachine(states)
+    const stateMachine = new chip.StateMachine(states, {
+      startingState: "start",
+    })
 
     for (let i = 0; i < 5; i++) {
       stateMachine.activate(makeFrameInfo(), makeChipContext(), makeSignal())
@@ -788,12 +790,15 @@ describe("StateMachine", () => {
 
   test("goes from start to end", () => {
     const states = { start: new MockChip() }
-    const stateMachine = new chip.StateMachine(states)
+    const stateMachine = new chip.StateMachine(states, {
+      startingState: "start",
+      endingStates: ["end"],
+    })
 
     // Run once, then terminate
     stateMachine.activate(makeFrameInfo(), makeChipContext(), makeSignal())
     stateMachine.tick(makeFrameInfo())
-    states.start.terminate(chip.makeSignal("end"))
+    states.start.terminate(makeSignal("end"))
     stateMachine.tick(makeFrameInfo())
 
     expect(states.start._onActivate).toBeCalledTimes(1)
@@ -801,19 +806,19 @@ describe("StateMachine", () => {
     expect(states.start._onTerminate).toBeCalledTimes(1)
 
     expect(stateMachine.outputSignal?.name).toBe("end")
-    expect(stateMachine.visitedStates).toContainEqual(chip.makeSignal("start"))
+    expect(stateMachine.visitedStates).toContainEqual(makeSignal("start"))
   })
 
   test("signals without state table", () => {
     const states = { a: new MockChip(), b: new MockChip() }
     const stateMachine = new chip.StateMachine(states, {
-      startingState: chip.makeSignal("a"),
+      startingState: new chip.Signal("a"),
     })
 
     // Run once, then terminate
     stateMachine.activate(makeFrameInfo(), makeChipContext(), makeSignal())
     stateMachine.tick(makeFrameInfo())
-    states.a.terminate(chip.makeSignal("b"))
+    states.a.terminate(makeSignal("b"))
     stateMachine.tick(makeFrameInfo())
 
     expect(states.a._onActivate).toBeCalledTimes(1)
@@ -826,7 +831,7 @@ describe("StateMachine", () => {
   test("signals with state table", () => {
     const states = { a: new MockChip(), b: new MockChip() }
     const stateMachine = new chip.StateMachine(states, {
-      startingState: chip.makeSignal("a"),
+      startingState: makeSignal("a"),
       signals: {
         a: "b",
         b: "a",
@@ -853,7 +858,7 @@ describe("StateMachine", () => {
   test("manual signals", () => {
     const states = { a: new MockChip(), b: new MockChip() }
     const stateMachine = new chip.StateMachine(states, {
-      startingState: chip.makeSignal("a"),
+      startingState: makeSignal("a"),
     })
 
     // Run once, then change state
@@ -874,9 +879,9 @@ describe("StateMachine", () => {
   test("signals with functions", () => {
     const states = { a: new MockChip(), b: new MockChip() }
     const stateMachine = new chip.StateMachine(states, {
-      startingState: chip.makeSignal("a"),
+      startingState: makeSignal("a"),
       signals: {
-        a: jest.fn(() => chip.makeSignal("b")),
+        a: jest.fn(() => makeSignal("b")),
       },
     })
 
@@ -884,7 +889,7 @@ describe("StateMachine", () => {
     stateMachine.activate(makeFrameInfo(), makeChipContext(), makeSignal())
     stateMachine.tick(makeFrameInfo())
 
-    const signal = chip.makeSignal("done", { x: "y" })
+    const signal = makeSignal("done", { x: "y" })
     states.a.terminate(signal)
 
     stateMachine.tick(makeFrameInfo())
@@ -923,7 +928,7 @@ describe("Alternative", () => {
 
   test("can provide custom signal", () => {
     const children = [
-      { chip: new MockChip(), signal: chip.makeSignal("hello") },
+      { chip: new MockChip(), signal: makeSignal("hello") },
       new MockChip(),
     ]
 
@@ -1160,10 +1165,15 @@ describe("Hot reloading", () => {
   test("works with StateMachine", () => {
     const child1V1 = new ReloadingChip(1)
     const child2V1 = new ReloadingChip(2)
-    const parentV1 = new chip.StateMachine({
-      start: child1V1,
-      middle: child2V1,
-    })
+    const parentV1 = new chip.StateMachine(
+      {
+        start: child1V1,
+        middle: child2V1,
+      },
+      {
+        startingState: "start",
+      }
+    )
 
     parentV1.activate(makeFrameInfo(), makeChipContext(), makeSignal())
 
@@ -1179,10 +1189,15 @@ describe("Hot reloading", () => {
     // Reload
     const child1V2 = new ReloadingChip(1)
     const child2V2 = new ReloadingChip(2)
-    const parentV2 = new chip.StateMachine({
-      start: child1V2,
-      middle: child2V2,
-    })
+    const parentV2 = new chip.StateMachine(
+      {
+        start: child1V2,
+        middle: child2V2,
+      },
+      {
+        startingState: "start",
+      }
+    )
     parentV2.activate(
       makeFrameInfo(),
       makeChipContext(),

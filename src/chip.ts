@@ -7,27 +7,23 @@ import * as event from "./event"
  * A `Signal` represents a immutable message that is provided to a chip when it activates,
  * as well as when it terminates.
  * A signal has a `name` and an optional map of strings to data.
- *
- * Because Signal is an interface, it cannot be created with `new`.
- * Instead, call `makeSignal()` to create one.
  */
-export interface Signal {
-  readonly name: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly params: Record<string, any>
+export class Signal<SignalName extends string = string> {
+  public constructor(
+    private readonly _name?: SignalName,
+    public readonly params: any = {}
+  ) {
+    // @ts-ignore
+    if (!_name) this._name = "default"
+  }
+
+  public get name(): SignalName {
+    return this._name!
+  }
 }
 
-export function makeSignal(name = "default", params = {}): Signal {
-  return { name, params }
-}
-
-export function isSignal(e: unknown): e is Signal {
-  return (
-    _.isObject(e) &&
-    e !== null &&
-    typeof (e as Signal).name === "string" &&
-    typeof (e as Signal).params === "object"
-  )
+export function isSignal(e: unknown): e is Signal<any> {
+  return e instanceof Signal
 }
 
 /**
@@ -85,11 +81,11 @@ export function resolveChip(
   context: Record<string, any>
 ): Chip | undefined {
   if (isChip(resolvable)) return resolvable
-  else return resolvable(context, makeSignal())
+  else return resolvable(context, new Signal())
 }
 
 export interface ChipActivationInfo extends ActivateChildChipOptions {
-  chip: ChipResolvable
+  readonly chip: ChipResolvable
 }
 
 export type ChipState = "inactive" | "active" | "paused"
@@ -248,7 +244,7 @@ export abstract class ChipBase<
     this.emit("resized", ...size)
   }
 
-  public terminate(outputSignal: Signal = makeSignal()): void {
+  public terminate(outputSignal: Signal = new Signal()): void {
     if (this._state !== "active" && this._state !== "paused")
       throw util.shortStackError(`terminate() called from state ${this._state}`)
 
@@ -484,7 +480,7 @@ export class Forever<
 export class Transitory<
   TransitoryEvents extends BaseChipBaseEvents = BaseChipBaseEvents
 > extends ChipBase<TransitoryEvents> {
-  constructor(public readonly terminateSignal = makeSignal()) {
+  constructor(public readonly terminateSignal = new Signal()) {
     super()
   }
 
@@ -603,7 +599,7 @@ export abstract class Composite<
     this._onAfterTick()
   }
 
-  public terminate(outputSignal: Signal = makeSignal()): void {
+  public terminate(outputSignal: Signal = new Signal()): void {
     // Can't just call super.terminate() here, the order is slightly different
 
     if (this._state !== "active" && this._state !== "paused")
@@ -695,7 +691,7 @@ export abstract class Composite<
         throw util.shortStackError("Duplicate child chip ID provided")
     }
 
-    const inputSignal = options.inputSignal ?? makeSignal()
+    const inputSignal = options.inputSignal ?? new Signal()
 
     const childContext = processChipContext(
       this._chipContext,
@@ -905,7 +901,7 @@ export class Parallel<
   _onActivate() {
     if (this._chipActivationInfos.length === 0) {
       // Empty set, stop immediately
-      if (this._options.terminateOnCompletion) this.terminate(makeSignal())
+      if (this._options.terminateOnCompletion) this.terminate(new Signal())
       return
     }
 
@@ -933,7 +929,7 @@ export class Parallel<
       Object.keys(this._childChips).length === 0 &&
       this._options.terminateOnCompletion
     )
-      this.terminate(makeSignal())
+      this.terminate(new Signal())
   }
 
   /**
@@ -1049,7 +1045,7 @@ export class Sequence<
 
   /** Skips to the next chip */
   skip() {
-    this._advance(makeSignal("skip"))
+    this._advance(new Signal("skip"))
   }
 
   private _switchChip() {
@@ -1084,7 +1080,7 @@ export class Sequence<
 
     if (this._chipActivationInfos.length === 0) {
       // Empty Sequence, stop immediately
-      if (this._options.terminateOnCompletion) this.terminate(makeSignal())
+      if (this._options.terminateOnCompletion) this.terminate(new Signal())
     } else {
       // Start the Sequence
       this._switchChip()
@@ -1132,23 +1128,35 @@ export class Sequence<
   }
 }
 
-export type StateTable = { [n: string]: ChipActivationInfo }
-export type StateTableDescriptor = {
-  [n: string]: ChipActivationInfo | ChipResolvable
+export type StateTable = {
+  [key in string]: ChipActivationInfo
 }
 
-export type SignalFunction = (context: ChipContext, signal: Signal) => Signal
-export type SignalDescriptor = Signal | SignalFunction
-export type SignalTable = { [name: string]: SignalDescriptor }
-
-export interface BaseStateMachineEvents extends BaseCompositeEvents {
-  stateChange: [previousState: Signal | undefined, nextState: Signal]
+export type SignalFunction<SignalName extends string> = (
+  context: ChipContext,
+  signal: Signal<SignalName>
+) => Signal<SignalName>
+export type SignalDescriptor<SignalName extends string> =
+  | Signal<SignalName>
+  | SignalFunction<SignalName>
+export type SignalTable<SignalName extends string> = {
+  [k in string]: SignalDescriptor<SignalName>
 }
 
-export class StateMachineOptions {
-  startingState: Signal | string = "start"
-  signals?: { [n: string]: SignalDescriptor | string }
-  endingStates: string[] = ["end"]
+export interface BaseStateMachineEvents<SignalName extends string>
+  extends BaseCompositeEvents {
+  stateChange: [
+    previousState: Signal<SignalName> | undefined,
+    nextState: Signal<SignalName>
+  ]
+}
+
+export interface StateMachineOptions<SignalName extends string> {
+  startingState: Signal<SignalName> | SignalName
+  signals?: Partial<
+    Record<SignalName, SignalDescriptor<SignalName> | SignalName>
+  >
+  endingStates?: (SignalName | string)[]
 }
 
 /**
@@ -1170,47 +1178,49 @@ export class StateMachineOptions {
  * - stateChange(previousState: Signal, nextState: Signal)
  */
 export class StateMachine<
-  StateMachineEvents extends BaseStateMachineEvents = BaseStateMachineEvents
+  States extends Record<string, ChipActivationInfo | ChipResolvable>,
+  StateMachineEvents extends BaseStateMachineEvents<
+    keyof States & string
+  > = BaseStateMachineEvents<keyof States & string>
 > extends Composite<StateMachineEvents> {
-  public readonly options: StateMachineOptions
-
-  private _states: StateTable = {}
-  private _signals: SignalTable = {}
-  private _startingState: SignalDescriptor
-  private _visitedStates!: Signal[]
+  private readonly _states: StateTable
+  private readonly _signals: SignalTable<keyof States & string>
+  private readonly _startingState: SignalDescriptor<keyof States & string>
+  private _visitedStates!: Signal<keyof States & string>[]
   private _activeChildChip?: Chip
-  private _lastSignal?: Signal
+  private _lastSignal?: Signal<keyof States & string>
 
   constructor(
-    states: StateTableDescriptor,
-    options?: Partial<StateMachineOptions>
+    states: States,
+    public readonly options: StateMachineOptions<keyof States & string>
   ) {
     super()
 
     // Create state table
-    for (const name in states) {
-      const state = states[name]
-      if (isChipResolvable(state)) {
-        this._states[name] = { chip: state }
-      } else {
-        this._states[name] = state
-      }
-    }
-
-    this.options = util.fillInOptions(options, new StateMachineOptions())
+    this._states = Object.fromEntries(
+      Object.entries<ChipActivationInfo | ChipResolvable>(states).map(
+        ([name, chip]) => {
+          if (isChipResolvable(chip)) return [name, { chip }] as const
+          return [name, chip] as const
+        }
+      )
+    )
 
     // Ensure all signals are of the correct type
     if (typeof this.options.startingState === "string")
-      this._startingState = makeSignal(this.options.startingState)
+      this._startingState = new Signal(this.options.startingState)
     else this._startingState = this.options.startingState
 
-    for (const key in this.options.signals) {
-      const value = this.options.signals[key]
-      if (typeof value === "string") {
-        this._signals[key] = makeSignal(value)
-      } else {
-        this._signals[key] = value
-      }
+    if (this.options.signals) {
+      this._signals = Object.fromEntries(
+        Object.entries(this.options.signals).map(([name, signal]) => {
+          if (typeof signal === "string")
+            return [name, new Signal(signal)] as const
+          return [name, signal!] as const
+        })
+      )
+    } else {
+      this._signals = {}
     }
   }
 
@@ -1225,11 +1235,11 @@ export class StateMachine<
     this._visitedStates = []
 
     if (this._reloadMemento) {
-      this._visitedStates = this._reloadMemento.data?.visitedStates as Signal[]
-      this._changeState(_.last(this._visitedStates) ?? makeSignal())
+      this._visitedStates = this._reloadMemento.data?.visitedStates ?? []
+      this._changeState(_.last(this._visitedStates) ?? new Signal())
     } else {
       const startingState = _.isFunction(this._startingState)
-        ? this._startingState(chipContext, makeSignal())
+        ? this._startingState(chipContext, new Signal())
         : this._startingState
       this._changeState(startingState)
     }
@@ -1240,21 +1250,21 @@ export class StateMachine<
 
     const signal = this._activeChildChip.outputSignal
     if (signal && this._lastSignal) {
-      let nextStateDescriptor: Signal
+      let nextStateDescriptor: Signal<keyof States & string>
       // The signal could directly be the name of another state, or ending state
       if (!(this._lastSignal.name in this._signals)) {
         if (
           signal.name in this._states ||
-          this.options.endingStates.includes(signal.name)
+          this.options.endingStates?.includes(signal.name)
         ) {
-          nextStateDescriptor = signal
+          nextStateDescriptor = signal as Signal<keyof States & string>
         } else {
           throw util.shortStackError(
             `Cannot find signal for state '${signal.name}'`
           )
         }
       } else {
-        const signalDescriptor: SignalDescriptor =
+        const signalDescriptor: SignalDescriptor<keyof States & string> =
           this._signals[this._lastSignal.name]
         if (_.isFunction(signalDescriptor)) {
           nextStateDescriptor = signalDescriptor(this._chipContext, signal)
@@ -1264,13 +1274,13 @@ export class StateMachine<
       }
 
       // Unpack the next state
-      let nextState: Signal
+      let nextState: Signal<keyof States & string>
       if (
         !nextStateDescriptor.params ||
         _.isEmpty(nextStateDescriptor.params)
       ) {
         // By default, pass through the params in the input signal
-        nextState = makeSignal(nextStateDescriptor.name, signal.params)
+        nextState = new Signal(nextStateDescriptor.name, signal.params)
       } else {
         nextState = nextStateDescriptor
       }
@@ -1291,15 +1301,17 @@ export class StateMachine<
   }
 
   /** Switch directly to a new state, terminating the current one */
-  changeState(nextState: string | Signal): void {
+  changeState(
+    nextState: (keyof States & string) | Signal<keyof States & string>
+  ): void {
     if (typeof nextState === "string") {
-      nextState = makeSignal(nextState)
+      nextState = new Signal(nextState)
     }
 
     this._changeState(nextState)
   }
 
-  private _changeState(nextState: Signal): void {
+  private _changeState(nextState: Signal<keyof States & string>): void {
     // Stop current state
     if (this._activeChildChip) {
       // The state may have already been terminated, if terminated
@@ -1309,7 +1321,7 @@ export class StateMachine<
     }
 
     // If reached an ending state, stop here.
-    if (this.options.endingStates.includes(nextState.name)) {
+    if (this.options.endingStates?.includes(nextState.name)) {
       this._lastSignal = nextState
       this._visitedStates.push(nextState)
 
@@ -1346,37 +1358,6 @@ export class StateMachine<
   get visitedStates() {
     return this._visitedStates
   }
-}
-
-/** 
-  Creates a signal table for use with StateMachine.
-  Example: 
-    const signals = {
-      start: chip.makeSignalTable({ 
-        win: "end",
-        lose: "start",
-      }),
-    };
-    `
-*/
-export function makeSignalTable(table: {
-  [key: string]: string | SignalFunction
-}): SignalFunction {
-  const f = function (context: ChipContext, signal: Signal): Signal {
-    if (signal.name in table) {
-      const signalResolvable = table[signal.name]
-      if (_.isFunction(signalResolvable)) {
-        return signalResolvable(context, signal)
-      } else {
-        return makeSignal(signalResolvable)
-      }
-    } else {
-      throw util.shortStackError(`Cannot find state ${signal.name}`)
-    }
-  }
-  f.table = table // For debugging purposes
-
-  return f
 }
 
 export interface FunctionalFunctions<
@@ -1451,12 +1432,12 @@ export class Functional<
     const result = this.functions.shouldTerminate(this)
     if (result) {
       if (_.isString(result)) {
-        this.terminate(makeSignal(result))
+        this.terminate(new Signal(result))
       } else if (_.isObject(result)) {
         this.terminate(result)
       } else {
         // result is true
-        this.terminate(makeSignal())
+        this.terminate(new Signal())
       }
     }
   }
@@ -1475,9 +1456,9 @@ export class Lambda<That> extends ChipBase {
   _onActivate() {
     const result = this.that ? this.f.bind(this.that)(this.that) : this.f()
 
-    if (typeof result === "string") this.terminate(makeSignal(result))
+    if (typeof result === "string") this.terminate(new Signal(result))
     else if (isSignal(result)) this.terminate(result)
-    else this.terminate(makeSignal())
+    else this.terminate(new Signal())
   }
 }
 
@@ -1507,7 +1488,7 @@ export class Wait extends ChipBase {
  * Does not terminate until done() is called with a given signal
  */
 export class Block extends ChipBase {
-  done(signal = makeSignal()) {
+  done(signal = new Signal()) {
     this.terminate(signal)
   }
 }
@@ -1596,7 +1577,7 @@ export class Alternative extends Composite {
 
   private _onChildTerminated(index: number) {
     const terminateWith =
-      this._chipActivationInfos[index].signal ?? makeSignal(index.toString())
+      this._chipActivationInfos[index].signal ?? new Signal(index.toString())
     this.terminate(terminateWith)
   }
 }

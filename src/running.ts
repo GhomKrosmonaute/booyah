@@ -13,7 +13,7 @@ export class RunnerOptions<
   HMRData extends { reloadMemento?: chip.ReloadMemento }
 > {
   rootContext: chip.ChipContext = {}
-  inputSignal: chip.Signal = chip.makeSignal()
+  inputSignal: chip.Signal = new chip.Signal()
 
   /** If minFps <= 0, it is ignored */
   minFps = 10
@@ -54,7 +54,7 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
 
     this._rootContext = chip.processChipContext(this._options.rootContext, {})
     this._rootChip = _.isFunction(this._rootChipResolvable)
-      ? this._rootChipResolvable(this._rootContext, chip.makeSignal())!
+      ? this._rootChipResolvable(this._rootContext, new chip.Signal())!
       : this._rootChipResolvable
 
     if (!this._rootChip) throw util.shortStackError("Root chip is null")
@@ -79,7 +79,7 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
     if (!this._isRunning) throw util.shortStackError("Already stopped")
 
     this._isRunning = false
-    this._rootChip.terminate(chip.makeSignal("stop"))
+    this._rootChip.terminate(new chip.Signal("stop"))
   }
 
   pause() {
@@ -145,11 +145,11 @@ export class Runner<HMRData extends { reloadMemento?: chip.ReloadMemento }> {
       const tickInfo: chip.TickInfo = {
         timeSinceLastTick: 0,
       }
-      this._rootChip.terminate(chip.makeSignal("beforeReload"))
+      this._rootChip.terminate(new chip.Signal("beforeReload"))
       this._rootChip.activate(
         tickInfo,
         this._rootContext,
-        chip.makeSignal("afterReload"),
+        new chip.Signal("afterReload"),
         reloadMemento
       )
     })

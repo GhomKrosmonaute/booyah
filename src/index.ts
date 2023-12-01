@@ -1,3 +1,5 @@
+import "@ghom/utils"
+
 export * from "./chip"
 export * from "./easing"
 export * from "./event"
