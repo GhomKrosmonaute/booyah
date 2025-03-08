@@ -1184,7 +1184,7 @@ export class StateMachine<
   > = BaseStateMachineEvents<keyof States & string>
 > extends Composite<StateMachineEvents> {
   private readonly _states: StateTable
-  private readonly _signals: SignalTable<keyof States & string>
+  private readonly _transitions: SignalTable<keyof States & string>
   private readonly _startingState: SignalDescriptor<keyof States & string>
   private _visitedStates!: Signal<keyof States & string>[]
   private _activeChildChip?: Chip
@@ -1212,7 +1212,7 @@ export class StateMachine<
     else this._startingState = this.options.startingState
 
     if (this.options.signals) {
-      this._signals = Object.fromEntries(
+      this._transitions = Object.fromEntries(
         Object.entries(this.options.signals).map(([name, signal]) => {
           if (typeof signal === "string")
             return [name, new Signal(signal)] as const
@@ -1220,7 +1220,7 @@ export class StateMachine<
         })
       )
     } else {
-      this._signals = {}
+      this._transitions = {}
     }
   }
 
@@ -1252,7 +1252,7 @@ export class StateMachine<
     if (signal && this._lastSignal) {
       let nextStateDescriptor: Signal<keyof States & string>
       // The signal could directly be the name of another state, or ending state
-      if (!(this._lastSignal.name in this._signals)) {
+      if (!(this._lastSignal.name in this._transitions)) {
         if (
           signal.name in this._states ||
           this.options.endingStates?.includes(signal.name)
@@ -1265,7 +1265,7 @@ export class StateMachine<
         }
       } else {
         const signalDescriptor: SignalDescriptor<keyof States & string> =
-          this._signals[this._lastSignal.name]
+          this._transitions[this._lastSignal.name]
         if (_.isFunction(signalDescriptor)) {
           nextStateDescriptor = signalDescriptor(this._chipContext, signal)
         } else {
